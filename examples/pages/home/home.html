@@ -1,0 +1,27 @@
+<div ng-controller='HomeCtrl'>	
+	<h2 class="page-header">Phones</h2>
+  
+  <form name="search-phone">
+    <label>Name:
+      <input name="phoneName" ng-model="filter.name">
+    </label>
+    <label>Age:
+      <input name="phoneAge" ng-model="filter.age">
+    </label>
+    <button name="clear-filters" ng-click="ds.clearFilter()">Clear filters</button>
+  </form>
+
+  <h3>Phones list</h3>
+  
+  <div class="row">
+    <div class="col-lg-10"> 
+      <vvv-crud-list data-options="listOptions" data-source="ds" actions-scope="uc" row-actions="CER" data-custom-actions="listCustomActions"></vvv-crud-list>
+
+      <h3>Pagination Info</h3>
+      <pre>{{ds.paginationInfo()}}</pre>
+      <button ng-click="ds.paginate(ds.paginationInfo().page - 1)">Prev Page</button>
+      <button ng-click="ds.paginate(ds.paginationInfo().page + 1)">Next Page</button>
+    </div>
+  </div>
+  
+</div>

@@ -1,0 +1,21 @@
+<div class="row add-item-place" ng-if="actions.create" ng-include="addRowTpl()"></div>
+<br />
+<div class="row items-list">
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th ng-class="{&#39;clickable&#39;: !column.notSortable}" ng-click="dataSource.sortBy(column.fieldId)" ng-repeat="column in columns" width="{{column.width || &#39;*&#39;}}">
+            <span class="icon" ng-class="{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}" ng-if="!column.notSortable"></span><span ng-bind="modelName + &#39;.&#39; + column.title | i18n : column.titlePrefix"></span>
+          </th>
+          <th ng-show="showActions">
+            {{'actions' | i18n}}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-include="rowTpl(row)" ng-repeat="row in dataSource.filteredRows()"></tr>
+      </tbody>
+    </table>
+  </div>
+</div>

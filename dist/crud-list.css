@@ -1,0 +1,21 @@
+
+.clickable {
+  cursor: pointer;
+  color: #337ab7;
+}
+.clickable span:hover{
+  color: #337ab7;
+}
+
+.icon.ordered { 
+  float: right;
+  display: block;
+  width: 5px;
+  height: 5px;
+  border: 5px solid transparent;
+  border-bottom-color: #000;
+}
+.icon.ordered.reverse {
+  border-bottom-color: transparent;
+  border-top-color: #000;
+}

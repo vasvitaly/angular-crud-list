@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for dist/crud-list.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">dist/</a> crud-list.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">91.59% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>98/107</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">83.87% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>52/62</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>22/22</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">91.59% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>98/107</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">122×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">121×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">279×</span>
+<span class="cline-any cline-yes">93×</span>
+<span class="cline-any cline-yes">186×</span>
+<span class="cline-any cline-yes">93×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">93×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">197×</span>
+<span class="cline-any cline-yes">197×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">196×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">65×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">64×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">64×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">63×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">108×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">107×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">129×</span>
+<span class="cline-any cline-yes">128×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">201×</span>
+<span class="cline-any cline-yes">201×</span>
+<span class="cline-any cline-yes">201×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">197×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">192×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">192×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">192×</span>
+<span class="cline-any cline-yes">192×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">'use strict';
+&nbsp;
+var vvvCrudListController = function($scope) {
+&nbsp;
+  $scope.columns = $scope.options.columns;
+  $scope.modelName = $scope.options.modelName;
+&nbsp;
+  $scope.rowTpl = function(row) {
+    if (row &amp;&amp; row.editing) {
+      return 'crud-list/edit_row.html';
+    } else {
+      return 'crud-list/row.html';
+    }
+  };
+&nbsp;
+  $scope.cellTpl = function(column) {
+    if (column.templateUrl) {
+      return column.templateUrl;
+    } else if (column.url) {
+      return 'crud-list/link.html';
+    }
+    return 'crud-list/plain_value.html';
+  };
+&nbsp;
+&nbsp;
+  $scope.formattedValue = function(row, column) {
+    var value = oValue(row, column.fieldId.split('.'));
+    if (column.formatter &amp;&amp; angular.isFunction(column.formatter)) {
+      return column.formatter(value);
+    } else {
+      return value;
+    }
+  };
+&nbsp;
+  $scope.addRowTpl = function() {
+    if ($scope.row &amp;&amp; $scope.row.editing) {
+      return 'crud-list/add_form.html';
+    } else {
+      return 'crud-list/add_button.html';
+    }
+  };
+&nbsp;
+  $scope.newUrl = function() {
+    if ($scope.options.newUrl){
+      return '#' + $scope.options.newUrl;
+    } else {
+      return '';
+    }
+  };
+&nbsp;
+  $scope.new = function() {
+    if ($scope.options.newUrl) {
+      return true;
+    }
+    $scope.row = $scope.dataSource.newRecord();
+    $scope.row.editing = true;
+    if ($scope.options.onCreate) {
+      $scope.options.onCreate($scope.row);
+    }
+    return $scope.row;
+  };
+  
+  $scope.editUrl = function(row) {
+    if ($scope.options.editUrl) {
+      return '#' + $scope.options.editUrl.replace(':id', row.id);
+    } else {
+      return '';
+    }
+  };
+&nbsp;
+  $scope.edit = function(row) {
+    if ($scope.options.editUrl) {
+      return true;
+    }
+    if ($scope.options.onEdit) {
+      $scope.options.onEdit(row);
+    }
+    row.editing = true;
+    return false;
+  };
+&nbsp;
+  $scope.cancel = function(row) {
+    row.editing = false;
+    return false;
+  };
+&nbsp;
+  $scope.save = function(row, oForm) {
+    if (oForm.$invalid) {
+      return false;
+    }
+    clearRowErrors(row);
+    $scope.dataSource.save(row, true, onSuccessSave.bind(this));
+  };
+&nbsp;
+  $scope.delete = function(row) {
+    $scope.dataSource.remove(row.id);
+  };
+&nbsp;
+  $scope.actionUrl = function(action, row) {
+    if (action.url) {
+      return '#' + action.url.replace(':id', row.id);
+    }
+    return '';
+  };
+&nbsp;
+  $scope.doCustomAction = function(action, row) {
+    if (action.action) {
+      action.action(row);
+      return true;
+    }
+    return false;
+  };
+&nbsp;
+  var onSuccessSave = function(row) {
+    row.editing = false;
+    if ($scope.row &amp;&amp; $scope.row.id == row.id) {
+      $scope.row = null;
+    }
+  };
+&nbsp;
+  var clearRowErrors = function(row) {
+    row.errors = {};
+  };
+&nbsp;
+  var oValue = function(obj, keys) {
+    var key;
+    key = keys.shift();
+    if (keys.length &gt; 0 &amp;&amp; obj[key] &amp;&amp; typeof(obj[key]) == 'object') {
+      return oValue(obj[key], keys);
+    } else {
+      return obj[key];
+    }
+  };
+&nbsp;
+  return true;
+};
+&nbsp;
+angular.module('vasvitaly.angular-crud-list', [])
+.directive('vvvCrudList', [function() {
+  return {
+    restrict: 'AE',
+    templateUrl: 'crud-list/main.html',
+    scope: {
+      options: '=',
+      dataSource: '=source',
+      actionsScope: '=',
+      rowActions: '@',
+      customActions: '=?customActions',
+    },
+    controllerAs: 'crudList',
+    controller: ['$scope', vvvCrudListController ],
+&nbsp;
+    link: function(scope) {
+      if (!scope.customActions) {
+        scope.customActions = [];
+      }
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (!scope.rowActions) {
+<span class="cstat-no" title="statement not covered" >        scope.rowActions = '';</span>
+      }
+      scope.actions = {
+        edit: scope.rowActions.indexOf('E') &gt;= 0 || scope.rowActions.indexOf('U') &gt;= 0,
+        create: scope.rowActions.indexOf('C') &gt;= 0,
+        remove: (scope.rowActions.indexOf('R') &gt;= 0 || scope.rowActions.indexOf('D') &gt;= 0)
+      };
+      scope.showActions = scope.actions.edit || <span class="branch-1 cbranch-no" title="branch not covered" >scope.actions.remove </span>|| <span class="branch-2 cbranch-no" title="branch not covered" >scope.customActions.length;</span>
+      return true;
+    }
+  };
+}])
+.filter('i18n', function() {
+  return function(key, prefix) {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (prefix) {
+<span class="cstat-no" title="statement not covered" >      prefix = prefix.split('.');</span>
+<span class="cstat-no" title="statement not covered" >      if (prefix[0] == 'ARA') {</span>
+<span class="cstat-no" title="statement not covered" >        prefix.shift();</span>
+<span class="cstat-no" title="statement not covered" >        prefix = ['activerecord','attributes'].concat(prefix.slice(1,prefix.length));</span>
+      } else <span class="cstat-no" title="statement not covered" >if (prefix[0] == 'ARM') {</span>
+<span class="cstat-no" title="statement not covered" >        prefix = ['activerecord','models'].concat(prefix.slice(1,prefix.length));</span>
+      } else <span class="cstat-no" title="statement not covered" >if (prefix[0] == 'enum') {</span>
+<span class="cstat-no" title="statement not covered" >        prefix = ['enumerize','defaults'].concat(prefix.slice(1,prefix.length));</span>
+      }
+    } else {
+      prefix = [];
+    }
+    prefix.push(key);
+    return window.I18n.t(prefix);
+  };
+});
+angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($templateCache) {
+  'use strict';
+&nbsp;
+  $templateCache.put('crud-list/add_button.html',
+    "&lt;div class=\"col-md-2\"&gt;&lt;a class=\"btn btn-primary\" ng-click=\"new()\" ng-href=\"{{newUrl()}}\"&gt;{{'add_new' | i18n : actionsScope.currentPage }}&lt;/a&gt;&lt;/div&gt;"
+  );
+&nbsp;
+&nbsp;
+  $templateCache.put('crud-list/add_form.html',
+    "&lt;h2 class=\"sub-header\"&gt;{{'add_new' | i18n : actionsScope.currentPage }}&lt;/h2&gt;&lt;div class=\"row\"&gt;&lt;div class=\"col-md-12\" ng-include=\"options.editTemplateUrl\"&gt;&lt;/div&gt;&lt;/div&gt;"
+  );
+&nbsp;
+&nbsp;
+  $templateCache.put('crud-list/edit_row.html',
+    "&lt;td class=\"row\" colspan=\"{{columns.length+1}}\"&gt;&lt;div class=\"col-md-12\" ng-include=\"options.editTemplateUrl\"&gt;&lt;/div&gt;&lt;/td&gt;"
+  );
+&nbsp;
+&nbsp;
+  $templateCache.put('crud-list/link.html',
+    "&lt;a ng-bind=\"formattedValue(row, column)\" ng-href=\"{{actionUrl(column, row)}}\" target=\"_blank\"&gt;&lt;/a&gt;"
+  );
+&nbsp;
+&nbsp;
+  $templateCache.put('crud-list/main.html',
+    "&lt;div class=\"row add-item-place\" ng-if=\"actions.create\" ng-include=\"addRowTpl()\"&gt;&lt;/div&gt;&lt;br&gt;&lt;div class=\"row items-list\"&gt;&lt;div class=\"table-responsive\"&gt;&lt;table class=\"table table-striped\"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th ng-class=\"{&amp;#39;clickable&amp;#39;: !column.notSortable}\" ng-click=\"dataSource.sortBy(column.fieldId)\" ng-repeat=\"column in columns\" width=\"{{column.width || &amp;#39;*&amp;#39;}}\"&gt;&lt;span class=\"icon\" ng-class=\"{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}\" ng-if=\"!column.notSortable\"&gt;&lt;/span&gt;&lt;span ng-bind=\"modelName + &amp;#39;.&amp;#39; + column.title | i18n : column.titlePrefix\"&gt;&lt;/span&gt;&lt;/th&gt;&lt;th ng-show=\"showActions\"&gt;{{'actions' | i18n}}&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr ng-include=\"rowTpl(row)\" ng-repeat=\"row in dataSource.filteredRows()\"&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;&lt;/div&gt;"
+  );
+&nbsp;
+&nbsp;
+  $templateCache.put('crud-list/plain_value.html',
+    "&lt;span ng-bind=\"formattedValue(row, column)\"&gt;&lt;/span&gt;"
+  );
+&nbsp;
+&nbsp;
+  $templateCache.put('crud-list/row.html',
+    "&lt;td ng-include=\"cellTpl(column)\" ng-repeat=\"column in columns\"&gt;&lt;/td&gt;&lt;td class=\"actions\" ng-if=\"showActions\"&gt;&lt;div class=\"action-block\" ng-hide=\"row.in_action\"&gt;&lt;a class=\"btn btn-info btn-md\" ng-click=\"edit(row)\" ng-href=\"{{editUrl(row)}}\" ng-if=\"actions.edit\"&gt;{{ 'edit' | i18n }}&lt;/a&gt;&amp;nbsp;&lt;button class=\"btn btn-danger btn-xs\" ng-click=\"row.in_action=&amp;#39;remove&amp;#39;\" ng-if=\"actions.remove\"&gt;{{ 'remove' | i18n }}&lt;/button&gt;&lt;a class=\"btn btn-md\" ng-click=\"doCustomAction(action, row)\" ng-href=\"{{actionUrl(action, row)}}\" ng-repeat=\"action in customActions\" target=\"_blank\"&gt;{{ action.title | i18n }}&lt;/a&gt;&lt;/div&gt;&lt;div class=\"action-block-remove\" ng-if=\"actions.remove\" ng-show=\"row.in_action==&amp;#39;remove&amp;#39;\"&gt;&lt;button class=\"btn btn-danger btn-xs\" ng-click=\"delete(row)\"&gt;{{ 'remove_completely' | i18n }}&lt;/button&gt;&amp;nbsp;&lt;button class=\"btn btn-default btn-md\" ng-click=\"row.in_action=false\"&gt;{{ 'cancel' | i18n }}&lt;/button&gt;&lt;/div&gt;&lt;/td&gt;"
+  );
+&nbsp;
+}]);
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Oct 03 2016 22:27:50 GMT+0200 (CEST)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

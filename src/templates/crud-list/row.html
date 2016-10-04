@@ -1,0 +1,9 @@
+<td ng-include="cellTpl(column)" ng-repeat="column in columns"></td>
+<td class="actions" ng-if="showActions">
+  <div class="action-block" ng-hide="row.in_action">
+    <a class="btn btn-info btn-md" ng-click="edit(row)" ng-href="{{editUrl(row)}}" ng-if="actions.edit">{{ 'edit' | i18n }}</a>&nbsp;<button class="btn btn-danger btn-xs" ng-click="row.in_action=&#39;remove&#39;" ng-if="actions.remove">{{ 'remove' | i18n }}</button><a class="btn btn-md" ng-click="doCustomAction(action, row)" ng-href="{{actionUrl(action, row)}}" ng-repeat="action in customActions" target="_blank">{{ action.title | i18n }}</a>
+  </div>
+  <div class="action-block-remove" ng-if="actions.remove" ng-show="row.in_action==&#39;remove&#39;">
+    <button class="btn btn-danger btn-xs" ng-click="delete(row)">{{ 'remove_completely' | i18n }}</button>&nbsp;<button class="btn btn-default btn-md" ng-click="row.in_action=false">{{ 'cancel' | i18n }}</button>
+  </div>
+</td>

@@ -1,0 +1,18 @@
+td ng-repeat="column in columns" ng-include="cellTpl(column)"
+td.actions ng-if="showActions"
+  div.action-block ng-hide="row.in_action"
+    a ng-href="{{editUrl(row)}}" ng-if="actions.edit" ng-click="edit(row)" class="btn btn-info btn-md"
+      | {{ 'edit' | i18n }}
+    | &nbsp;
+    button ng-if='actions.remove' ng-click="row.in_action='remove'" class="btn btn-danger btn-xs"
+      | {{ 'remove' | i18n }}
+    a ng-repeat="action in customActions" ng-href="{{actionUrl(action, row)}}" target="_blank" ng-click="doCustomAction(action, row)" class="btn btn-md"
+      | {{ action.title | i18n }}
+
+
+  div.action-block-remove ng-if="actions.remove" ng-show="row.in_action=='remove'"
+    button ng-click="delete(row)" class="btn btn-danger btn-xs"
+      | {{ 'remove_completely' | i18n }}
+    | &nbsp;
+    button ng-click="row.in_action=false" class="btn btn-default btn-md"
+      | {{ 'cancel' | i18n }}

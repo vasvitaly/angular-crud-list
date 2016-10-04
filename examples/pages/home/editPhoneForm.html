@@ -1,0 +1,43 @@
+<form name="phoneForm" class="form-horizontal col-md-6">
+  <div class="form-group">
+    <label class="col-md-4 control-label">Name *</label>
+    <div class="col-md-8">
+      <input name="name" type="text" ng-model="row.name" class="form-control" required>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-md-4 control-label">Age </label>
+    <div class="col-md-8">
+      <input name="age" type="text" ng-model="row.age" class="form-control">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-md-4 control-label">Image Url </label>
+    <div class="col-md-8">
+      <input name="name" type="text" ng-model="row.imageUrl" class="form-control">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-md-4 control-label">Description</label>
+    <div class="col-md-8">
+      <textarea name="snippet" ng-model="row.snippet" class="form-control"></textarea>
+    </div>
+  </div>      
+
+
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-md-6">
+      <button class="btn btn-primary" ng-click="save(row, phoneForm)">
+        {{'save' | i18n }}
+      </button>
+      &nbsp;
+      <button class="btn btn-default" ng-click="cancel(row)">
+        {{'cancel' | i18n }}
+      </button>
+    </div>
+  </div>
+
+</form>

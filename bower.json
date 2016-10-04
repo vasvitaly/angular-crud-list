@@ -1,0 +1,28 @@
+{
+  "name": "angular-crud-list",
+  "version": "1.0.0",
+  "main": ["dist/crud-list.min.js", "dist/crud-list.css"],
+  "authors": [
+    "v5778844@gmail.com"
+  ],
+  "description": "Angular crud list directive",
+  "keywords": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.5.8"
+  },
+  "devDependencies": {
+    "angular-mocks": "^1.5.8",
+    "angular-route": "~1.5.8",
+    "angular-resource": "^1.5.8",
+    "angular-data-source": "vasvitaly/angular-data-source#^0.1.0",
+    "bootstrap": "^3.3.7"
+  }
+}
