@@ -1,14 +1,25 @@
-.row.add-item-place ng-if="actions.create" ng-include="addRowTpl()"
-br
-.row.items-list
-  .table-responsive
-    table.table.table-striped
-      thead
-        tr
-          th ng-repeat="column in columns" ng-click="dataSource.sortBy(column.fieldId)" width="{{column.width || '*'}}" ng-class="{'clickable': !column.notSortable}"
-            span.icon ng-if="!column.notSortable" ng-class="{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}"
-            span ng-bind="modelName + '.' + column.title | i18n : column.titlePrefix"
-          th ng-show="showActions" 
-            | {{'actions' | i18n}}
-      tbody
-        tr ng-repeat="row in dataSource.filteredRows()" ng-include="rowTpl(row)"
+div ng-if="errors.length > 0"
+  p ng-repeat="error in errors" ng-bind="error"
+
+div ng-if="errors.length == 0"
+  .row.listActionsPanel ng-if="showActions.listActions"
+    span ng-repeat="action in listActions" 
+      a.btn ng-href="{{actionUrl(action)}}" target="_blank" ng-click="doAction(action, row)" ng-class="actionCssClass(action)"
+        | {{ action.title | i18n }}
+      | &nbsp;
+
+  .row ng-include="newRowTpl()"
+
+  br
+  .row.items-list
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th ng-repeat="column in columns" ng-click="dataSource.sortBy(column.fieldId)" width="{{column.width || '*'}}" ng-class="{'clickable': !column.notSortable}"
+              span.icon ng-if="!column.notSortable" ng-class="{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}"
+              span ng-bind="modelName + '.' + column.title | i18n : column.titlePrefix"
+            th ng-show="showActions" 
+              | {{'actions' | i18n}}
+        tbody
+          tr ng-repeat="row in dataSource.filteredRows()" ng-include="rowTpl(row)"

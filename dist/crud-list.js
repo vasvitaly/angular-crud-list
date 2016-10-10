@@ -1,12 +1,62 @@
 'use strict';
 
 var vvvCrudListController = function($scope) {
-
+  var actionConfirmations = {
+    remove: {
+      yesText: 'remove_completely',
+      noText: 'cancel'
+    }
+  };
+  var actionCssClasses = {
+    new: 'btn-primary',
+    remove: 'btn-danger btn-xs',
+    edit: 'btn-info btn-md'
+  };
+  $scope.errors = [];
+  $scope.showActions = {};
   $scope.columns = $scope.options.columns;
   $scope.modelName = $scope.options.modelName;
 
+  // Example of possible action options  
+  // $scope.listActions = {
+  //   add: {
+  //     title: 'add',
+  //     url: '/items/add',
+  //   or 
+  //     templateUrl: 'yourAppFolder/addItem.html',
+  //   or
+  //     action: function(){},
+  
+  //     confirmation: {
+  //       text: 'Do you really want to add?',
+  //       yesText: 'Sure',
+  //       noText: 'No'
+  //     },
+  //     cssClass: 'btn-info btn-md'
+  //   }
+  // }
+
+
+  // Example of possible row action options  
+  // $scope.rowActions = {
+  //   edit: {
+  //     title: 'edit',
+  //     url: '/items/:id',
+  //   or 
+  //     templateUrl: 'yourAppFolder/editItem.html',
+  //   or
+  //     action: function(){},
+  
+  //     confirmation: {
+  //       text: 'Do you really want to edit?',
+  //       yesText: 'Sure',
+  //       noText: 'No'
+  //     }
+  //   }
+  // }
+
   $scope.rowTpl = function(row) {
-    if (row && row.editing) {
+    if (row && row.state) {
       return 'crud-list/edit_row.html';
     } else {
       return 'crud-list/row.html';
@@ -32,55 +82,19 @@ var vvvCrudListController = function($scope) {
     }
   };
 
-  $scope.addRowTpl = function() {
-    if ($scope.row && $scope.row.editing) {
-      return 'crud-list/add_form.html';
-    } else {
-      return 'crud-list/add_button.html';
-    }
-  };
-
-  $scope.newUrl = function() {
-    if ($scope.options.newUrl){
-      return '#' + $scope.options.newUrl;
-    } else {
-      return '';
-    }
+  $scope.newRowTpl = function() {
+    return $scope.row && $scope.row.state == 'new' ? 'crud-list/add_form.html' : '';
   };
 
   $scope.new = function() {
-    if ($scope.options.newUrl) {
-      return true;
-    }
     $scope.row = $scope.dataSource.newRecord();
-    $scope.row.editing = true;
-    if ($scope.options.onCreate) {
-      $scope.options.onCreate($scope.row);
-    }
+    $scope.row.state = 'new';
     return $scope.row;
   };
   
-  $scope.editUrl = function(row) {
-    if ($scope.options.editUrl) {
-      return '#' + $scope.options.editUrl.replace(':id', row.id);
-    } else {
-      return '';
-    }
-  };
-
-  $scope.edit = function(row) {
-    if ($scope.options.editUrl) {
-      return true;
-    }
-    if ($scope.options.onEdit) {
-      $scope.options.onEdit(row);
-    }
-    row.editing = true;
-    return false;
-  };
-
   $scope.cancel = function(row) {
-    row.editing = false;
+    row.state = null;
+    row.action = null;
     return false;
   };
 
@@ -92,27 +106,125 @@ var vvvCrudListController = function($scope) {
     $scope.dataSource.save(row, true, onSuccessSave.bind(this));
   };
 
-  $scope.delete = function(row) {
+  $scope.remove = function(row) {
     $scope.dataSource.remove(row.id);
+    return row;
   };
 
   $scope.actionUrl = function(action, row) {
     if (action.url) {
-      return '#' + action.url.replace(':id', row.id);
+      var resUrl = action.url;
+      if (resUrl.indexOf('/') === 0) {
+        resUrl = '#' + resUrl;
+      }
+      return row ? populateUrl(resUrl, row) : resUrl;
     }
     return '';
   };
 
-  $scope.doCustomAction = function(action, row) {
+  $scope.doAction = function(action, row) {
+    if (action.confirmation) {
+      row.confirmation = action.confirmation;
+      row.action = action;
+      return false;
+    }
     if (action.action) {
-      action.action(row);
-      return true;
+      row = $scope.doConfirmedAction(action, row);
+    } 
+    if (action.templateUrl) {
+      row.state = action.name;
     }
     return false;
   };
 
+  $scope.doConfirmedAction = function(action, row) {
+    var results;
+    if (action.before && angular.isFunction(action.before)) {
+      action.before(row);
+    }
+    
+    results = action.action(row);
+
+    if (action.after && angular.isFunction(action.after)) {
+      action.after(row || results);
+    }
+    return (row || results);
+  };
+
+  $scope.cancelAction = function(row) {
+    row.confirmation = null;
+  };
+
+  $scope.actionCssClass = function(action){
+    return action.cssClass || actionCssClasses[action.name] || '';
+  };
+
+  var checkRowActions = function() {
+    checkActions('row');
+  };
+
+  var checkListActions = function() {
+    checkActions('list');
+  };
+
+  var checkActions = function(target) {
+    var actionsLength = 0;
+    var actions, action, actionName;
+    target = target + 'Actions';
+    
+    $scope[target] = {};
+    if ($scope.options[target]) {
+      actions = $scope.options[target];
+      for (actionName in actions) {
+        action = actions[actionName];
+        action.name = actionName;
+        if (isActionCorrect(action)) {
+          $scope[target][actionName] = action;
+          actionsLength += 1;
+        } else {
+          return false;
+        }
+      }
+    }
+    $scope.showActions[target] = actionsLength > 0;
+  };
+
+  var isActionCorrect = function(action){
+    if (!action.title || action.title === '') {
+      action.title = action.name;
+    }
+    if ( (!action.url || action.url === '') && 
+         (!action.action || !angular.isFunction(action.action) ) 
+       ) {
+      if (action.name == 'new' || action.name == 'remove') {
+        action.action = $scope[action.name];
+        if (action.confirmation !== false && !action.confirmation && actionConfirmations[action.name]) {
+          action.confirmation = actionConfirmations[action.name];
+        }
+      } else if (!action.templateUrl || action.templateUrl === '')  {
+        $scope.errors.push('Action "' + action.name + '" has nothing to do.');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  var populateUrl = function(url, data) {
+    var i, places, property;
+    places = url.match(/\:[^\/\:\.]+/g);
+    if (places) {
+      for (i = 0; i < places.length; i++) {
+        property = places[i].replace(':','');
+        if (data.hasOwnProperty(property)) {
+          url = url.replace(places[i], data[property]);
+        }
+      }
+    }
+    return url;
+  };
+
   var onSuccessSave = function(row) {
-    row.editing = false;
+    row.state = null;
     if ($scope.row && $scope.row.id == row.id) {
       $scope.row = null;
     }
@@ -132,6 +244,9 @@ var vvvCrudListController = function($scope) {
     }
   };
 
+  checkRowActions();
+  checkListActions();
+
   return true;
 };
 
@@ -142,29 +257,10 @@ angular.module('vasvitaly.angular-crud-list', [])
     templateUrl: 'crud-list/main.html',
     scope: {
       options: '=',
-      dataSource: '=source',
-      actionsScope: '=',
-      rowActions: '@',
-      customActions: '=?customActions',
+      dataSource: '=source'
     },
     controllerAs: 'crudList',
-    controller: ['$scope', vvvCrudListController ],
-
-    link: function(scope) {
-      if (!scope.customActions) {
-        scope.customActions = [];
-      }
-      if (!scope.rowActions) {
-        scope.rowActions = '';
-      }
-      scope.actions = {
-        edit: scope.rowActions.indexOf('E') >= 0 || scope.rowActions.indexOf('U') >= 0,
-        create: scope.rowActions.indexOf('C') >= 0,
-        remove: (scope.rowActions.indexOf('R') >= 0 || scope.rowActions.indexOf('D') >= 0)
-      };
-      scope.showActions = scope.actions.edit || scope.actions.remove || scope.customActions.length;
-      return true;
-    }
+    controller: ['$scope', vvvCrudListController ]
   };
 }])
 .filter('i18n', function() {
@@ -190,17 +286,17 @@ angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($t
   'use strict';
 
   $templateCache.put('crud-list/add_button.html',
-    "<div class=\"col-md-2\"><a class=\"btn btn-primary\" ng-click=\"new()\" ng-href=\"{{newUrl()}}\">{{'add_new' | i18n : actionsScope.currentPage }}</a></div>"
+    "<div class=\"col-md-2\"><a class=\"btn btn-primary\" ng-click=\"new()\" ng-href=\"{{newUrl()}}\">{{'add_new' | i18n : options.actionsScope.currentPage }}</a></div>"
   );
 
 
   $templateCache.put('crud-list/add_form.html',
-    "<h2 class=\"sub-header\">{{'add_new' | i18n : actionsScope.currentPage }}</h2><div class=\"row\"><div class=\"col-md-12\" ng-include=\"options.editTemplateUrl\"></div></div>"
+    "<h2 class=\"sub-header\">{{'add_new' | i18n : options.actionsScope.currentPage }}</h2><div class=\"row\"><div class=\"col-md-12\" ng-include=\"listActions.new.templateUrl || rowActions.edit.templateUrl\"></div></div>"
   );
 
 
   $templateCache.put('crud-list/edit_row.html',
-    "<td class=\"row\" colspan=\"{{columns.length+1}}\"><div class=\"col-md-12\" ng-include=\"options.editTemplateUrl\"></div></td>"
+    "<td class=\"row\" colspan=\"{{columns.length+1}}\"><div class=\"col-md-12\" ng-include=\"rowActions[row.state].templateUrl\"></div></td>"
   );
 
 
@@ -210,7 +306,7 @@ angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($t
 
 
   $templateCache.put('crud-list/main.html',
-    "<div class=\"row add-item-place\" ng-if=\"actions.create\" ng-include=\"addRowTpl()\"></div><br><div class=\"row items-list\"><div class=\"table-responsive\"><table class=\"table table-striped\"><thead><tr><th ng-class=\"{&#39;clickable&#39;: !column.notSortable}\" ng-click=\"dataSource.sortBy(column.fieldId)\" ng-repeat=\"column in columns\" width=\"{{column.width || &#39;*&#39;}}\"><span class=\"icon\" ng-class=\"{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}\" ng-if=\"!column.notSortable\"></span><span ng-bind=\"modelName + &#39;.&#39; + column.title | i18n : column.titlePrefix\"></span></th><th ng-show=\"showActions\">{{'actions' | i18n}}</th></tr></thead><tbody><tr ng-include=\"rowTpl(row)\" ng-repeat=\"row in dataSource.filteredRows()\"></tr></tbody></table></div></div>"
+    "<div ng-if=\"errors.length &gt; 0\"><p ng-bind=\"error\" ng-repeat=\"error in errors\"></p></div><div ng-if=\"errors.length == 0\"><div class=\"row listActionsPanel\" ng-if=\"showActions.listActions\"><span ng-repeat=\"action in listActions\"><a class=\"btn\" ng-class=\"actionCssClass(action)\" ng-click=\"doAction(action, row)\" ng-href=\"{{actionUrl(action)}}\" target=\"_blank\">{{ action.title | i18n }}</a>&nbsp;</span></div><div class=\"row\" ng-include=\"newRowTpl()\"></div><br><div class=\"row items-list\"><div class=\"table-responsive\"><table class=\"table table-striped\"><thead><tr><th ng-class=\"{&#39;clickable&#39;: !column.notSortable}\" ng-click=\"dataSource.sortBy(column.fieldId)\" ng-repeat=\"column in columns\" width=\"{{column.width || &#39;*&#39;}}\"><span class=\"icon\" ng-class=\"{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}\" ng-if=\"!column.notSortable\"></span><span ng-bind=\"modelName + &#39;.&#39; + column.title | i18n : column.titlePrefix\"></span></th><th ng-show=\"showActions\">{{'actions' | i18n}}</th></tr></thead><tbody><tr ng-include=\"rowTpl(row)\" ng-repeat=\"row in dataSource.filteredRows()\"></tr></tbody></table></div></div></div>"
   );
 
 
@@ -220,7 +316,7 @@ angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($t
 
 
   $templateCache.put('crud-list/row.html',
-    "<td ng-include=\"cellTpl(column)\" ng-repeat=\"column in columns\"></td><td class=\"actions\" ng-if=\"showActions\"><div class=\"action-block\" ng-hide=\"row.in_action\"><a class=\"btn btn-info btn-md\" ng-click=\"edit(row)\" ng-href=\"{{editUrl(row)}}\" ng-if=\"actions.edit\">{{ 'edit' | i18n }}</a>&nbsp;<button class=\"btn btn-danger btn-xs\" ng-click=\"row.in_action=&#39;remove&#39;\" ng-if=\"actions.remove\">{{ 'remove' | i18n }}</button><a class=\"btn btn-md\" ng-click=\"doCustomAction(action, row)\" ng-href=\"{{actionUrl(action, row)}}\" ng-repeat=\"action in customActions\" target=\"_blank\">{{ action.title | i18n }}</a></div><div class=\"action-block-remove\" ng-if=\"actions.remove\" ng-show=\"row.in_action==&#39;remove&#39;\"><button class=\"btn btn-danger btn-xs\" ng-click=\"delete(row)\">{{ 'remove_completely' | i18n }}</button>&nbsp;<button class=\"btn btn-default btn-md\" ng-click=\"row.in_action=false\">{{ 'cancel' | i18n }}</button></div></td>"
+    "<td ng-include=\"cellTpl(column)\" ng-repeat=\"column in columns\"></td><td class=\"actions\" ng-if=\"showActions.rowActions\"><div class=\"action-block\" ng-show=\"!row.confirmation\"><span ng-repeat=\"action in rowActions\"><a class=\"btn\" ng-class=\"actionCssClass(action)\" ng-click=\"doAction(action, row)\" ng-href=\"{{actionUrl(action, row)}}\" target=\"_blank\">{{ action.title | i18n }}</a>&nbsp;</span></div><div class=\"action-confirmation-block\" ng-if=\"row.confirmation\"><span class=\"question\" ng-bind=\"row.confirmation.text\"></span><button class=\"btn btn-danger btn-xs\" ng-click=\"doConfirmedAction(row.action,row)\">{{ row.confirmation.yesText || 'sure' | i18n }}</button>&nbsp;<button class=\"btn btn-default btn-md\" ng-click=\"cancelAction(row)\">{{ row.confirmation.noText || 'cancel' | i18n }}</button></div></td>"
   );
 
 }]);

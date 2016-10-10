@@ -1,4 +1,4 @@
 h2.sub-header
-  | {{'add_new' | i18n : actionsScope.currentPage }}
+  | {{'add_new' | i18n : options.actionsScope.currentPage }}
 .row
-  .col-md-12 ng-include="options.editTemplateUrl"
+  .col-md-12 ng-include="listActions.new.templateUrl || rowActions.edit.templateUrl"

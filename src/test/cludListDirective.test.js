@@ -40,10 +40,8 @@ describe('crud-list directive', function(){
     ds.sortingInfo.and.returnValue({desc: false});
 
     elm = angular.element(
-      '<vvv-crud-list data-options="listOptions" '+
-      'data-source="ds" actions-scope="uc" row-actions="CUD"'+
-      ' data-custom-actions="listCustomActions">'+
-      '</vvv-crud-list>');
+      '<vvv-crud-list data-options="listOptions" data-source="ds"></vvv-crud-list>'
+    );
 
     scope.ds = ds;
 
@@ -68,29 +66,30 @@ describe('crud-list directive', function(){
         }
       ],
       modelName: 'phone',
-      editTemplateUrl: 'pages/editPhoneForm.html'
-    };
-
-    listCustomActions = [
-      {
-        title: 'details',
-        url: '/phones/:id/details'
+      listActions: {
+        new: { templateUrl: 'pages/editPhoneForm.html' }
+      },
+      rowActions: {
+        edit: { templateUrl: 'pages/editPhoneForm.html' },
+        remove: { },
+        details: {
+          url: '/phones/:id/details'
+        }
       }
-    ];
+    };
 
   }));
 
   describe('processing available actions option', function(){
 
     beforeEach(function(){
-      scope.listCustomActions = listCustomActions;
       compileDir();
     });
 
     it('shows create button', function(){
-      var link = elm.find('.row.add-item-place a.btn.btn-primary');
+      var link = elm.find('.row.listActionsPanel a.btn.btn-primary');
       expect(link.length).toEqual(1);
-      expect(link.text()).toEqual('add_new');
+      expect(link.text()).toEqual('new');
     });
 
     it('shows actions column', function(){
@@ -107,18 +106,20 @@ describe('crud-list directive', function(){
       });
 
       it('shows edit button', function(){
-        expect(actionCell.find("a:first-child").text()).toEqual('edit');
+        var editBtn = actionCell.find("a.btn.btn-info.btn-md")[0];
+        editBtn = angular.element(editBtn);
+        expect(editBtn.text()).toEqual('edit');
       });
 
       it('shows remove button', function(){
-        expect(actionCell.find("button.btn-danger").text()).toEqual('remove');
+        expect(actionCell.find("a.btn.btn-danger.btn-xs").text()).toEqual('remove');
       });
 
-      it('shows additional actions', function(){
-        var expectedUrl = '#' + listCustomActions[0].url.replace(':id', ds.filteredRows()[0].id);
-
-        expect(actionCell.find("a:last-child").text()).toEqual('details');
-        expect(actionCell.find("a:last-child").attr("href")).toEqual(expectedUrl);
+      it('shows additional action', function(){
+        var expectedUrl = '#' + scope.listOptions.rowActions.details.url.replace(':id', ds.filteredRows()[0].id);
+        var btn = actionCell.find("span:last-child a.btn");
+        expect(btn.text()).toEqual('details');
+        expect(btn.attr("href")).toEqual(expectedUrl);
       });
     });
 

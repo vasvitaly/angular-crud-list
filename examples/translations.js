@@ -2,6 +2,7 @@ I18n.translations = {
   "en": {
     actions: "Actions",
     add_new: 'Add new',
+    new: 'Add new',
     remove: 'Remove',
     edit: 'Edit',
     remove_completely: 'Remove Completely',

@@ -7,7 +7,7 @@ angular.module('myApp').factory("Phone", ["$resource", function($resource) {
 .controller('HomeCtrl', ['$scope', 'Phone', 'vvvDataSource', function($scope, Phone, DataSource) {
 
   var options = {
-    newItemDefaults: {name: '', colors: [{name: '', name_lat: '', show_in_list: 0}]},
+    newItemDefaults: {name: 'new phone', age: 1, imageUrl: 'http://images.google.com/1', snippet: 'Some description here'},
     filter: {name: 'Moto'},
     sorting: {fieldId: 'age', desc: true},
     clearFilter: {name: ''},
@@ -53,14 +53,22 @@ angular.module('myApp').factory("Phone", ["$resource", function($resource) {
       }
     ],
     modelName: 'phone',
-    editTemplateUrl: '/examples/pages/home/editPhoneForm.html'
-
-  };
-  $scope.listCustomActions = [
-    {
-      title: 'details',
-      url: '/phones/:id/details'
+    listActions: {
+      new: {
+        templateUrl: '/examples/pages/home/editPhoneForm.html'
+      }
+    },
+    rowActions: {
+      edit: {
+        templateUrl: '/examples/pages/home/editPhoneForm.html'
+      },
+      remove: {},
+      details: {
+        title: 'details',
+        url: '/phones/:id/details',
+        cssClass: 'btn-success btn-md'
+      }
     }
-  ];
+  };
 
 }]);
