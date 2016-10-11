@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>angular-crud-list</title>
+		<style>
+			/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+sup {
+   vertical-align: super;
+   font-size: smaller;
+}
+
+sub {
+  vertical-align: sub;
+  font-size: smaller;
+}
+
+/* Generic styles */
+body {
+	background: #f5f5f5;
+  color: #222;
+  font-family: 'Palatino Linotype','Book Antiqua',Palatino,FreeSerif,serif;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6,
+ul, ol,
+p,
+code, pre,
+hr {
+	line-height: 1.5em;
+	margin: 1.5em 0 0.5em 0;
+}
+
+*:first-child {
+	margin-top: 0;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+	font-weight: bold;
+}
+
+h1 {
+	font-size: 3.5em;
+}
+
+h2 {
+	font-size: 2.5em;
+}
+
+h3 {
+	font-size: 2em;
+}
+
+h4 {
+	font-size: 1.5em
+}
+
+h5 {
+	font-size: 1.2em;
+}
+
+h6 {
+	font-size: 1em;
+}
+
+/* Lists */
+ul, ol {
+	padding-left: 2em;
+}
+
+ul {
+	list-style-type: disc;	
+}
+
+ol {
+	list-style-type: decimal;
+}
+
+/* Code and pre */
+code, pre {
+	font-family: "Bitstream Vera Sans Mono", "Courier", monospace;
+}
+code {
+	background: none repeat scroll 0 0 #F8F8FF;
+  border: 1px solid #DEDEDE;
+  border-radius: 3px 	;
+  padding: 0 0.2em;
+}
+pre {
+	border-left: 5px solid #eee;
+	margin-left: 2em;	
+	padding-left: 1em;
+}
+pre > code {
+	background: transparent;
+	border: none;
+	padding: 0;
+}
+
+/* Links */
+a {
+  color: #261A3B;
+}
+
+a:visited {
+  color: #261A3B;
+}
+
+/* Inlines */
+strong {
+	font-weight: bold;
+}
+
+em {
+	font-style: italic;
+}
+
+/* Container */
+.container {
+	background: #FFF;
+	padding: 30px 50px;
+	margin: 0 auto;
+	width: 850px;
+}
+
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1 id="angular-crud-list">angular-crud-list</h1>
+<p>Table based CRUD list angular directive 
+designed to work with <a href="https://github.com/vasvitaly/angular-data-source">angular-data-source</a>.</p>
+<p>Current templates designed to work with bootstrap ~3</p>
+<h2 id="install">Install</h2>
+<pre><code class="lang-shell">bower install vasvitaly/angular-crud-list
+</code></pre>
+<h2 id="usage">Usage</h2>
+<ol>
+<li>Include the <code>crud-list.js</code> script and <code>crud-list.css</code> into your app.</li>
+<li>Add <code>vasvitaly.angular-crud-list</code> as a module dependency to your app.</li>
+</ol>
+<pre><code class="lang-javascript">angular.module(&#39;myApp&#39;, [&#39;vasvitaly.angular-crud-list&#39;]);
+</code></pre>
+<h3 id="in-a-controller">In a controller</h3>
+<pre><code class="lang-javascript">
+controllers.controller(&quot;ItemsController&quot;, 
+[&#39;$scope&#39;, &#39;vvvDataSource&#39;, &#39;Item&#39;, function($scope, DataSource, Item) {
+  var dsOptions = {};
+  var uc = $scope;
+  $scope.uc = uc;
+
+  $scope.dataSource = new DataSource(Item, dsOptions);
+  $scope.dataSource.query();
+
+  $scope.listOptions = {
+    columns: [
+      { 
+        fieldId: &#39;id&#39;, 
+        title: &#39;id&#39;,
+        url: &#39;/phones/:id&#39;,
+        width: &#39;130&#39;
+      },
+      { 
+        fieldId: &#39;name&#39;, 
+        title: &#39;name&#39;
+      }
+    ],
+    listActions = {
+      add: {
+        title: &#39;add&#39;,
+        url: &#39;/items/add&#39;,
+        templateUrl: &#39;yourAppFolder/addItem.html&#39;,
+        action: function(){},
+        confirmation: {
+          text: &#39;Do you really want to add?&#39;,
+          yesText: &#39;Sure&#39;,
+          noText: &#39;No&#39;
+        },
+        cssClass: &#39;btn-info btn-md&#39;
+      },
+      customAction: {
+        title: &#39;Detailed List&#39;,
+        url: &#39;/items/detailed&#39;,
+        cssClass: &#39;btn-detailed btn-md&#39;
+      }
+    },
+    rowActions = {
+      remove: {
+        confirmation: {
+          yesText: &#39;Remove completely&#39;,
+          noText: &#39;No&#39;
+        }
+      },
+      edit: {
+        templateUrl: &#39;yourAppFolder/editItem.html&#39;
+      },
+      details: {
+        title: &#39;more info&#39;,
+        url: &#39;/items/:id&#39;
+      }
+    },
+    modelName: &#39;phone&#39;
+  };
+}]);
+</code></pre>
+<h3 id="in-the-template">In the template</h3>
+<pre><code class="lang-html">&lt;vvv-crud-list data-options=&quot;listOptions&quot; data-source=&quot;dataSource&quot;&gt;&lt;/vvv-crud-list&gt;
+</code></pre>
+<h2 id="api">API</h2>
+<h3 id="available-directive-options-">Available directive options:</h3>
+<ul>
+<li><em>data-options</em> - options hash set in your controller or main directive</li>
+<li><em>data-source</em> - data providing service</li>
+</ul>
+<h4 id="options-possible-key-values">options possible key-values</h4>
+<ul>
+<li><em>columns</em> - array of objects, describing columns of the table</li>
+<li><em>listActions</em> - object describing list actions, e.g. &#39;new&#39;, &#39;go to other list&#39;, &#39;mark all&#39;.</li>
+<li><em>rowActions</em> - object, describing row actions, e.g. &#39;edit&#39;, &#39;remove&#39;, &#39;more info&#39;.</li>
+<li><em>modelName</em> - string with object name as it is in translation file. </li>
+</ul>
+<h3 id="column-description-object">Column description object</h3>
+<ul>
+<li><strong>fieldId</strong> - string, key to get data from row in dataSource. E.g. fieldId=&#39;name&#39;, data will be retrieved from dataSource.rows[i][&#39;name&#39;]. </li>
+<li><strong>title</strong> - string, column title, will be translated using i18n. 
+Translation schema: modelName.column.title | i18n : column.titlePrefix</li>
+<li><strong>url</strong> - string, url template, when present will transform column value into link, populating placeholders,
+looking :propertyName with row&#39;s property value. </li>
+<li><strong>width</strong> - string or number, sets fixed width for the column using <code>width</code> property of the <code>th</code> tag </li>
+<li><strong>notSortable</strong> - boolean or number (0|1), when true disables sorting feature on the column.</li>
+<li><strong>templateUrl</strong> - string, url of the custom template for the column cell. Could be used to show images or complex html code in the cell.</li>
+</ul>
+<h3 id="listactions-and-rowactions-hashes">listActions and rowActions hashes</h3>
+<p>Both action lists have the same possible attributes. </p>
+<pre><code class="lang-javascript">list: {
+  add: {
+    title: &#39;add&#39;,
+    url: &#39;/items/add&#39;,
+    templateUrl: &#39;yourAppFolder/addItem.html&#39;,
+    action: function(){},
+    confirmation: {
+      text: &#39;Do you really want to add?&#39;,
+      yesText: &#39;Sure&#39;,
+      noText: &#39;No&#39;
+    },
+    cssClass: &#39;btn-info btn-md&#39;
+  }
+}
+</code></pre>
+<p>Each key:value pair describes one action. Key is action name. Value is a action options hash.</p>
+<h4 id="action-options-">Action options:</h4>
+<ul>
+<li><strong>title</strong> - Action title, will be get from action name when not set.</li>
+<li><strong>url</strong> - Url template to make local or global link. Local link should start from <code>/</code>. 
+placeholders looks like :propertyName. :string will be treaten as placeholder only when row has appropriate property.  </li>
+<li><strong>templateUrl</strong> - template url for inline actioning row. Good for inline edit form.</li>
+<li><strong>action</strong> - action function. When present will be called as action.
+Directive has predefined action &#39;remove&#39;. </li>
+<li><p><strong>confirmation</strong> - hash, to set up action&#39;s inline confirmation. Remove action has default confirmation.</p>
+<pre><code class="lang-javascript">confirmation: {
+  text: &#39;Do you really want to add?&#39;,
+  yesText: &#39;Sure&#39;,
+  noText: &#39;No&#39;
+}
+</code></pre>
+<ul>
+<li><strong>text</strong> - string, confirmation text</li>
+<li><strong>yesText</strong> - string, agree button label, default value is &#39;sure&#39;</li>
+<li><strong>noText</strong> - string, cancel button label, default value is &#39;cancel&#39;</li>
+</ul>
+</li>
+<li><p><strong>cssClass</strong> - string, css classes to be added to the action link.</p>
+</li>
+<li><strong>formatter</strong> - function, if present will be called with cell value to make transformations, returned value will be showed in the cell. Could be handy for date formatting.</li>
+<li><strong>before</strong> - function, called before action with row as argument.</li>
+<li><strong>after</strong> - function, called after action with row or action call result (in case row not sent, for list actions) as argument.</li>
+</ul>
+<h4 id="bundled-actions">Bundled actions</h4>
+<ul>
+<li>Actions <strong>new</strong>, <strong>edit</strong> and <strong>remove</strong> have internal support.</li>
+<li>Actions have default css classes, <strong>new</strong> and <strong>remove</strong> have appropriate methods, which will be used as default in case no action or url set. </li>
+<li><strong>New</strong> and <strong>edit</strong> actions requires <code>templateUrl</code> for the edit item form.</li>
+<li>You can use <strong>save</strong> method in your form for saving item.</li>
+<li>Use <strong>cancel</strong> method to cancel creating/editing item.</li>
+</ul>
+<h3 id="translations">Translations</h3>
+<p>List supports translation of all the labels using <a href="https://github.com/fnando/i18n-js">i18n-js</a> translation library and additional included filter <strong>i18n</strong>.</p>
+<h4 id="i18n">i18n</h4>
+<p>In html it can be used like any other angular filter:</p>
+<pre><code class="lang-html">&lt;div&gt;{{&#39;key&#39; | i18n : &#39;prefix&#39;}}&lt;/div&gt;
+</code></pre>
+<ul>
+<li><strong>key</strong> - string, translation text key in the translations.js file, E.g. &#39;yes&#39;, &#39;no&#39;, &#39;remove&#39;, &#39;hello&#39;...</li>
+<li><strong>prefix</strong> - string, dot separated path to translation in the translations.js file.
+Also accepts some RAILS specific names as part of prefix: <ul>
+<li><strong>ARA</strong> - &#39;activerecord.attributes&#39;</li>
+<li><strong>ARM</strong> - &#39;activerecord.models&#39;</li>
+<li><strong>enum</strong> - &#39;enumerize.defaults&#39;
+So, with it prefix will look like &#39;ARA.modelname&#39;</li>
+</ul>
+</li>
+</ul>
+<p>When translation is not found it will fall back to the translation key. So, </p>
+<pre><code class="lang-html">&lt;div&gt;{{&#39;Hello&#39; | i18n : &#39;mainpage.greetings&#39;}}&lt;/div&gt;
+</code></pre>
+<p>when translation file has no &#39;mainpage.greetings.Hello&#39; translation will output</p>
+<pre><code class="lang-html">&lt;div&gt;Hello&lt;/div&gt;
+</code></pre>
+
+		</div>
+
+		<script></script>
+	</body>
+</html>

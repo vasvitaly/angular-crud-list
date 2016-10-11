@@ -17,44 +17,6 @@ var vvvCrudListController = function($scope) {
   $scope.columns = $scope.options.columns;
   $scope.modelName = $scope.options.modelName;
 
-  // Example of possible action options  
-  // $scope.listActions = {
-  //   add: {
-  //     title: 'add',
-  //     url: '/items/add',
-  //   or 
-  //     templateUrl: 'yourAppFolder/addItem.html',
-  //   or
-  //     action: function(){},
-  
-  //     confirmation: {
-  //       text: 'Do you really want to add?',
-  //       yesText: 'Sure',
-  //       noText: 'No'
-  //     },
-  //     cssClass: 'btn-info btn-md'
-  //   }
-  // }
-
-
-  // Example of possible row action options  
-  // $scope.rowActions = {
-  //   edit: {
-  //     title: 'edit',
-  //     url: '/items/:id',
-  //   or 
-  //     templateUrl: 'yourAppFolder/editItem.html',
-  //   or
-  //     action: function(){},
-  
-  //     confirmation: {
-  //       text: 'Do you really want to edit?',
-  //       yesText: 'Sure',
-  //       noText: 'No'
-  //     }
-  //   }
-  // }
-
   $scope.rowTpl = function(row) {
     if (row && row.state) {
       return 'crud-list/edit_row.html';
@@ -279,6 +241,6 @@ angular.module('vasvitaly.angular-crud-list', [])
       prefix = [];
     }
     prefix.push(key);
-    return window.I18n.t(prefix);
+    return window.I18n.t(prefix, {defaultValue: key});
   };
 });

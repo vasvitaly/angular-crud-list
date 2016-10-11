@@ -39,18 +39,48 @@ controllers.controller("ItemsController",
         title: 'id',
         url: '/phones/:id',
         width: '130'
+      },
+      { 
+        fieldId: 'name', 
+        title: 'name'
       }
     ],
-    modelName: 'phone',
-    editTemplateUrl: '/examples/pages/home/editPhoneForm.html'
+    listActions = {
+      add: {
+        title: 'add',
+        url: '/items/add',
+        templateUrl: 'yourAppFolder/addItem.html',
+        action: function(){},
+        confirmation: {
+          text: 'Do you really want to add?',
+          yesText: 'Sure',
+          noText: 'No'
+        },
+        cssClass: 'btn-info btn-md'
+      },
+      customAction: {
+        title: 'Detailed List',
+        url: '/items/detailed',
+        cssClass: 'btn-detailed btn-md'
+      }
+    },
+    rowActions = {
+      remove: {
+        confirmation: {
+          yesText: 'Remove completely',
+          noText: 'No'
+        }
+      },
+      edit: {
+        templateUrl: 'yourAppFolder/editItem.html'
+      },
+      details: {
+        title: 'more info',
+        url: '/items/:id'
+      }
+    },
+    modelName: 'phone'
   };
-  $scope.listCustomActions = [
-    {
-      title: 'details',
-      url: '/phones/:id/details'
-    }
-  ];
-     
 }]);
 
 ```
@@ -64,183 +94,109 @@ controllers.controller("ItemsController",
 
 ### Available directive options:
 * *data-options* - options hash set in your controller or main directive
-* *data-custom-actions* - TODO move into data-options
 * *data-source* - data providing service
-* *actions-scope* - scope for custom actions hanlders
-* *row-actions* - 
-
-
-* *Model* - ngResource based object
-* *options* - options object
 
 #### options possible key-values
-  * *newItemDefaults* - object, options which will be sent for creating new item of *Model*
-  * *filter* - object, filter will be applied to rows in `filteredRows()` using angular filter() or sent to the server.
-    You can use your own registered filters using their name double underscored as key in filters.
-    Example:
-     Let have own filter registered as 'startingWith'. 
-     filters 
-```
-      {
-        __startingWith: anyTypeValue
-      }
-```
-     will use startingWith filter and send to it anyTypeValue as second argument.
+  * *columns* - array of objects, describing columns of the table
+  * *listActions* - object describing list actions, e.g. 'new', 'go to other list', 'mark all'.
+  * *rowActions* - object, describing row actions, e.g. 'edit', 'remove', 'more info'.
+  * *modelName* - string with object name as it is in translation file. 
 
-  * *sorting* - object, `{fieldId: 'string' desc: boolean}`, used for ordering rows in *filteredRows()* and in server request.
-  * *clearFilter* - object, which will be used as base in `clearFilter` API method.
-  * *perPage* - rows limit to show, also sent to the server.
-  * *page* - page to show, also sent to the server.
+### Column description object 
 
-### Initial request
-
-Makes first request to the server to get rows.
-
-```javascript
-dataSource.query([options], [callBackFunc])
-```
-+ **options** - object, base options used for quering server by Model, will be populated with filters, paginating and sorting. 
-+ **callBackFunc** - function, callback function to call on success response from Server. Will be called with one argument - results json.
-
-#### Important info. Getting pagination info from the server.
-  This service checks last item of server response to have .pagination key.
-  If found, last element pops from results and .pagination is used to populate pagination info.
+  * **fieldId** - string, key to get data from row in dataSource. E.g. fieldId='name', data will be retrieved from dataSource.rows[i]['name']. 
+  * **title** - string, column title, will be translated using i18n. 
+    Translation schema: modelName.column.title | i18n : column.titlePrefix
+  * **url** - string, url template, when present will transform column value into link, populating placeholders,
+  looking :propertyName with row's property value. 
+  * **width** - string or number, sets fixed width for the column using `width` property of the `th` tag 
+  * **notSortable** - boolean or number (0|1), when true disables sorting feature on the column.
+  * **templateUrl** - string, url of the custom template for the column cell. Could be used to show images or complex html code in the cell.
 
 
-### Paginate
+### listActions and rowActions hashes
 
-Change page in paginated data
+Both action lists have the same possible attributes. 
 
 ```javascript
-dataSource.paginate(page)
-```
-**page** - page to show
-
-
-### SortBy
-
-Change data sorting field or direction. If not all data from the server shown, server request will be used.
-
-```javascript
-dataSource.sortBy(fieldId)
-```
-**fieldId** - field name to sort by. If same fieldId sent, sorting direction will be changed.
-
-### Pagination Info
-
-Returns current pagination info
-
-```javascript
-dataSource.paginationInfo()
-```
-
-**Returns** object 
-```javascript
-{
-  totalCount: number, 
-  perPage: number, 
-  page: number, 
-  locally: boolean
+list: {
+  add: {
+    title: 'add',
+    url: '/items/add',
+    templateUrl: 'yourAppFolder/addItem.html',
+    action: function(){},
+    confirmation: {
+      text: 'Do you really want to add?',
+      yesText: 'Sure',
+      noText: 'No'
+    },
+    cssClass: 'btn-info btn-md'
+  }
 }
 ```
 
-Could be empty in case no pagination used for data.
+Each key:value pair describes one action. Key is action name. Value is a action options hash.
 
-### Sorting Info
+#### Action options:
 
-Returns current sorting info object
-
+* **title** - Action title, will be get from action name when not set.
+* **url** - Url template to make local or global link. Local link should start from `/`. 
+  placeholders looks like :propertyName. :string will be treaten as placeholder only when row has appropriate property.  
+* **templateUrl** - template url for inline actioning row. Good for inline edit form.
+* **action** - action function. When present will be called as action.
+  Directive has predefined action 'remove'. 
+* **confirmation** - hash, to set up action's inline confirmation. Remove action has default confirmation.
 ```javascript
-dataSource.sortingInfo()
+  confirmation: {
+    text: 'Do you really want to add?',
+    yesText: 'Sure',
+    noText: 'No'
+  }
+```
+  * **text** - string, confirmation text
+  * **yesText** - string, agree button label, default value is 'sure'
+  * **noText** - string, cancel button label, default value is 'cancel'
+
+* **cssClass** - string, css classes to be added to the action link.
+* **formatter** - function, if present will be called with cell value to make transformations, returned value will be showed in the cell. Could be handy for date formatting.
+* **before** - function, called before action with row as argument.
+* **after** - function, called after action with row or action call result (in case row not sent, for list actions) as argument.
+
+#### Bundled actions
+
+- Actions **new**, **edit** and **remove** have internal support.
+- Actions have default css classes, **new** and **remove** have appropriate methods, which will be used as default in case no action or url set. 
+- **New** and **edit** actions requires `templateUrl` for the edit item form.
+- You can use **save** method in your form for saving item.
+- Use **cancel** method to cancel creating/editing item.
+
+
+### Translations
+
+List supports translation of all the labels using [i18n-js](https://github.com/fnando/i18n-js) translation library and additional included filter **i18n**.
+
+#### i18n
+
+In html it can be used like any other angular filter:
+```html
+<div>{{'key' | i18n : 'prefix'}}</div>
 ```
 
-**Returns** object 
-```javascript
-{
-  fieldId: string, 
-  desc: boolean, 
-}
+* **key** - string, translation text key in the translations.js file, E.g. 'yes', 'no', 'remove', 'hello'...
+* **prefix** - string, dot separated path to translation in the translations.js file.
+  Also accepts some RAILS specific names as part of prefix: 
+  * **ARA** - 'activerecord.attributes'
+  * **ARM** - 'activerecord.models'
+  * **enum** - 'enumerize.defaults'
+  So, with it prefix will look like 'ARA.modelname'
+
+When translation is not found it will fall back to the translation key. So, 
+
+```html
+<div>{{'Hello' | i18n : 'mainpage.greetings'}}</div>
 ```
+when translation file has no 'mainpage.greetings.Hello' translation will output
 
-### Is Ordered By Field
-
-Returns true if current sorting field is equal to argument
-
-```javascript
-dataSource.isOrderedByField(fieldId)
+```html
+<div>Hello</div>
 ```
-
-Arg **fieldId** string 
-
-Return `boolean`
-
-### Apply Filter
-
-Used to send actual filtering state to the server when filtered on server
-
-```javascript
-dataSource.applyFilter()
-```
-Returns `boolean` - true when sent to the server, false - otherwise.
-Applying filters also sets page to 1.
-
-
-### Clear Filter
-
-Clears current filters. Uses `clearFilter` initialization option or empty object.
-Applies cleared filters when filtered on the server.
-
-```javascript
-dataSource.clearFilter()
-```
-Returns `boolean` - true when sent to the server, false - otherwise.
-Sets page to 1.
-
-### Filtered Rows
-
-Returns rows, filtered using angular.filter() with current filters object.
-Then results are sorted and paginated. If server returned more data than set in perPage
-local paginating will be used.
-
-```javascript
-dataSource.filteredRows()
-```
-Returns `[<Model {}>...<Model {}>]`
-
-
-### New Record
-
-Builds new item of `Model` using newItemDefaults populated with sent args.
-
-```javascript
-dataSource.newRecord(attrs)
-```
-Returns new Model(newItemDefaults << attrs)
-
-
-### Add
-
-Adds arg to the top of .rows array.
-
-```javascript
-dataSource.add(arg)
-```
-
-### Remove
-
-Removes from list object having id equal to sent id
-
-```javascript
-dataSource.remove(id)
-```
-Returns array with deleted item or false when not found.
-
-
-### .rows
-
-just untouched rows got from the server
-
-### .filter
-
-Filters. You can use them in filter form on the page.
-

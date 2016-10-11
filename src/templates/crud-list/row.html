@@ -1,9 +1,1 @@
-<td ng-include="cellTpl(column)" ng-repeat="column in columns"></td>
-<td class="actions" ng-if="showActions.rowActions">
-  <div class="action-block" ng-show="!row.confirmation">
-    <span ng-repeat="action in rowActions"><a class="btn" ng-class="actionCssClass(action)" ng-click="doAction(action, row)" ng-href="{{actionUrl(action, row)}}" target="_blank">{{ action.title | i18n }}</a>&nbsp;</span>
-  </div>
-  <div class="action-confirmation-block" ng-if="row.confirmation">
-    <span class="question" ng-bind="row.confirmation.text"></span><button class="btn btn-danger btn-xs" ng-click="doConfirmedAction(row.action,row)">{{ row.confirmation.yesText || 'sure' | i18n }}</button>&nbsp;<button class="btn btn-default btn-md" ng-click="cancelAction(row)">{{ row.confirmation.noText || 'cancel' | i18n }}</button>
-  </div>
-</td>
+<td ng-include="cellTpl(column)" ng-repeat="column in columns"></td><td class="actions" ng-if="showActions.rowActions"><div class="action-block" ng-show="!row.confirmation"><span ng-repeat="action in rowActions"><a class="btn" ng-class="actionCssClass(action)" ng-click="doAction(action, row)" ng-href="{{actionUrl(action, row)}}" target="_blank">{{ action.title | i18n }}</a>&nbsp;</span></div><div class="action-confirmation-block" ng-if="row.confirmation"><span class="question" ng-bind="row.confirmation.text"></span><button class="btn btn-danger btn-xs" ng-click="doConfirmedAction(row.action,row)">{{ row.confirmation.yesText || 'sure' | i18n }}</button>&nbsp;<button class="btn btn-default btn-md" ng-click="cancelAction(row)">{{ row.confirmation.noText || 'cancel' | i18n }}</button></div></td>

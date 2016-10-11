@@ -67,7 +67,8 @@ describe('crud-list directive', function(){
       ],
       modelName: 'phone',
       listActions: {
-        new: { templateUrl: 'pages/editPhoneForm.html' }
+        new: { templateUrl: 'pages/editPhoneForm.html' },
+        detailedList: {title: 'Detailed List', url: 'pages/phones/detailed', cssClass: 'detailed'}
       },
       rowActions: {
         edit: { templateUrl: 'pages/editPhoneForm.html' },
@@ -92,6 +93,13 @@ describe('crud-list directive', function(){
       expect(link.text()).toEqual('new');
     });
 
+    it('shows additional list action', function(){
+      var link = elm.find('.row.listActionsPanel a.btn.detailed');
+      expect(link.length).toEqual(1);
+      expect(link.text()).toEqual('Detailed List');
+      expect(link.attr('href')).toEqual('pages/phones/detailed');
+    });
+    
     it('shows actions column', function(){
       var expected = elm.find('.row.items-list table thead tr th:last-child');
       expect(expected.length).toEqual(1);
