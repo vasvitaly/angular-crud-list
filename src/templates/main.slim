@@ -3,12 +3,20 @@ div ng-if="errors.length > 0"
 
 div ng-if="errors.length == 0"
   .row.listActionsPanel ng-if="showActions.listActions"
-    span ng-repeat="action in listActions" 
-      a.btn ng-href="{{actionUrl(action)}}" target="_blank" ng-click="doAction(action, row)" ng-class="actionCssClass(action)"
-        | {{ action.title | i18n }}
+    div.listActions ng-if="rowState() !== 'confirmation'"
+      span ng-repeat="action in listActions" 
+        a.btn ng-href="{{actionUrl(action)}}" target="_blank" ng-click="doAction($event, action, row)" ng-class="actionCssClass(action)"
+          | {{ action.title | i18n }}
+        | &nbsp;
+    div.action-confirmation-block ng-if="rowState() == 'confirmation'"
+      span.question ng-bind="rowConfirmation().text"
+      a.btn.btn-danger.btn-xs ng-href="{{actionUrl(rowAction())}}" target="_blank" ng-click="doAction($event, rowAction(), null, true)"
+        | {{ rowConfirmation().yesText || 'sure' | i18n }}
       | &nbsp;
+      button.btn.btn-default.btn-md ng-click="cancel()"
+        | {{ rowConfirmation().noText || 'cancel' | i18n }}
 
-  .row ng-include="newRowTpl()"
+  .row.new-item-block ng-include="newRowTpl()"
 
   br
   .row.items-list
@@ -18,7 +26,7 @@ div ng-if="errors.length == 0"
           tr
             th ng-repeat="column in columns" ng-click="dataSource.sortBy(column.fieldId)" width="{{column.width || '*'}}" ng-class="{'clickable': !column.notSortable}"
               span.icon ng-if="!column.notSortable" ng-class="{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}"
-              span ng-bind="modelName + '.' + column.title | i18n : column.titlePrefix"
+              span ng-bind="column.title | i18n : column.prefix"
             th ng-show="showActions" 
               | {{'actions' | i18n}}
         tbody

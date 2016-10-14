@@ -28,6 +28,7 @@ config(['$routeProvider', '$locationProvider', '$compileProvider', function($rou
 	
 	
 	$routeProvider.when(appPathRoute+'home', {templateUrl: pagesPath+'home/home.html'});
+	$routeProvider.when(appPathRoute+'phones', {templateUrl: pagesPath+'home/phones.html'});
 
 	$routeProvider.otherwise({redirectTo: appPathRoute+'home'});
 	

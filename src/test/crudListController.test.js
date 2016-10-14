@@ -9,7 +9,7 @@ describe('vvvCrudListController', function(){
     controller = $controller;
     scope = $rootScope;
     scope.options = {
-      columns: [1,2,3],
+      columns: [{fieldId: 'id'},{fieldId: 'name'}],
       modelName: 'phone',
       rowActions: {
         edit: { templateUrl: 'someUrl' },
@@ -155,7 +155,8 @@ describe('vvvCrudListController', function(){
     });
 
     it('returns row edit template for row in editing state', function(){
-      expect(scope.rowTpl({state: 'edit'})).toEqual('crud-list/edit_row.html');
+      scope.rowStates[101] = ['edit',{}];
+      expect(scope.rowTpl({id: 101})).toEqual('crud-list/edit_row.html');
     });
   
     describe('cellTpl', function(){
@@ -254,13 +255,15 @@ describe('vvvCrudListController', function(){
       expect(scope.newRowTpl()).toEqual('');
     });
 
-    it('returns `` when the new row.state is not `new` ', function(){
+    it('returns `` when row not in edit state ', function(){
       scope.row = {};
+      scope.rowStates['new'] = null;
       expect(scope.newRowTpl()).toEqual('');
     });
 
-    it('returns add_form tpl when the new row.state is `new`', function(){
+    it('returns add_form tpl when the new row is in `edit` state', function(){
       scope.row = {state: 'new'};
+      scope.rowStates['new'] = ['edit',{}];
       expect(scope.newRowTpl()).toEqual('crud-list/add_form.html');
     });
 
@@ -282,11 +285,6 @@ describe('vvvCrudListController', function(){
       expect(scope.new()).toEqual(newRow);
     });
 
-    it('should set scope.row.state to `new`', function(){
-      scope.new();
-      expect(scope.row.state).toBe('new');
-    });
-
   });
 
 
@@ -296,20 +294,15 @@ describe('vvvCrudListController', function(){
     beforeEach(function(){
       row = {
         id: Math.round(Math.random()*100),
-        name: 'some existing item',
-        editing: true
+        name: 'some existing item'
       };
       createSut();
+      scope.rowStates[row.id] = ['edit',{}];
     });
 
-    it('returns false', function(){
-      expect(scope.cancel(row)).toBe(false);
-    });
-
-    it('should nullify row.state and action', function(){
+    it('should nullify state for the row', function(){
       scope.cancel(row);
-      expect(row.state).toBe(null);
-      expect(row.action).toBe(null);
+      expect(scope.rowStates[row.id]).toBe(null);
     });
   });
 
@@ -320,11 +313,11 @@ describe('vvvCrudListController', function(){
     beforeEach(function(){
       row = {
         id: Math.round(Math.random()*100),
-        name: 'some existing item',
-        editing: true
+        name: 'some existing item'
       };
       form = {$invalid: true};
       createSut();
+      scope.rowStates[row.id] = ['edit',{}];
     });
 
     it('returns false when form has errors', function(){
@@ -350,9 +343,9 @@ describe('vvvCrudListController', function(){
 
       describe('on success save ', function(){
 
-        it('should nullify row.state  ', function(){
+        it('should nullify state for saved row', function(){
           callSaveRow();
-          expect(row.state).toBe(null);
+          expect(scope.rowStates[row.id]).toEqual(null);
         });
 
         it('should nullify scope.row if exactly it was saved', function(){
@@ -361,7 +354,7 @@ describe('vvvCrudListController', function(){
           expect(scope.row).toEqual(null);
         });
 
-        it('should not nullify scope.row if just another row was saved', function(){
+        it('should not nullify scope.row when not new row was saved', function(){
           var someNewRow = {id: null, name: 'some new row'};
           scope.row = someNewRow;
           callSaveRow();
@@ -389,12 +382,19 @@ describe('vvvCrudListController', function(){
         name: 'some existing item'
       };
       createSut();
+      scope.rowStates[row.id] = ['edit', {}];
     });
 
     it('should call dataSource.remove with row.id', function(){
       scope.remove(row);
       expect(scope.dataSource.remove).toHaveBeenCalledWith(row.id);
     });
+
+    it('should nullify state for saved row', function(){
+      scope.remove(row);
+      expect(scope.rowStates[row.id]).toEqual(null);
+    });
+
   });
     
   describe('actionUrl', function(){
@@ -432,7 +432,7 @@ describe('vvvCrudListController', function(){
   });
 
   describe('doAction', function(){
-    var row, action;
+    var row, action, event;
 
     beforeEach(function(){
       row = {
@@ -441,118 +441,175 @@ describe('vvvCrudListController', function(){
       };
       action = {
         name: 'myAction',
-        action: jasmine.createSpy('myAction')
+        action: jasmine.createSpy('myAction'),
+        url: '/#/url/for/myAction',
+        templateUrl: 'myapp/templates/myAction.html'
       };
+      event = jasmine.createSpyObj('event', ['stopImmediatePropagation', 'preventDefault']);
       createSut();
     });
 
-    it('should return false when action has no action or templateUrl', function(){
-      expect(scope.doAction({}, row)).toBe(false);
+    it('should stopImmediatePropagation on event if present', function(){
+      scope.doAction(event, {}, row);
+      expect(event.stopImmediatePropagation).toHaveBeenCalled();
     });
 
-    it('should set confirmation and action to row when action has confirmation and return false', function(){
-      action.confirmation = {yesText: 'Yes', noText: 'no'};
-      expect(scope.doAction(action, row)).toBe(false);
-      expect(row.confirmation).toEqual(action.confirmation);
-      expect(row.action).toEqual(action);
+    describe('when action has confirmation', function(){
+
+      beforeEach(function(){
+        action.confirmation = {
+          text: '',
+          yesText: 'Yes',
+          noText: 'No'
+        };
+      });
+      describe('and have not confirmed yet', function(){
+        it('return false', function(){
+          expect(scope.doAction(event, action, row)).toBe(false);
+        });
+
+        it('sets row state to confirmation of action', function(){
+          scope.doAction(event, action, row);
+          expect(scope.rowStates[row.id]).toEqual(['confirmation', action]);
+        });
+
+        it('preventDefault on event', function(){
+          scope.doAction(event, action, row);
+          expect(event.preventDefault).toHaveBeenCalled();
+        });
+      });
+
+      describe('and confirmed', function(){
+        var confirmed;
+
+        beforeEach(function(){
+          confirmed = true;
+        });
+
+        it('returns true', function(){
+          expect(scope.doAction(event, action, row, confirmed)).toBe(true);
+        });
+
+      });
     });
 
-    it('should set row.state to action name when action has templateUrl', function(){
-      action.templateUrl = 'someUrl';
-      scope.doAction(action, row);
-      expect(row.state).toBe(action.name);
+    describe('when action has no confirmation', function(){
+
+      beforeEach(function(){
+        action.confirmation = null;
+      });
+
+      it('returns true', function(){
+        expect(scope.doAction(event, action, row)).toBe(true);
+      });
+
     });
 
-    it('should call doConfirmedAction with action and row', function(){
-      spyOn(scope, 'doConfirmedAction');
-      scope.doAction(action, row);
-      expect(scope.doConfirmedAction).toHaveBeenCalledWith(action, row);
+    describe('when action has templateUrl', function(){
+
+      it('should preventDefault on event ', function(){
+        scope.doAction(event, action, row);
+        expect(event.preventDefault).toHaveBeenCalled();
+      });
+
+      it('should set row state to edit with action', function(){
+        scope.doAction(event, action, row);
+        expect(scope.rowStates[row.id]).toEqual(['edit', action]);
+      });
+
     });
-  });
 
-  describe('doConfirmedAction', function() {
-    var row, action, newRowCreated;
+    describe('when action has no templateUrl', function(){
+      beforeEach(function(){
+        action.templateUrl = null;
+      });
 
-    beforeEach(function(){
-      row = {
-        id: Math.round(Math.random()*100),
-        name: 'some existing item',
-        prepared: false,
-        before_called: false,
-        after_called: false
-      };
-      newRowCreated  = {name: 'newRowCreated'};
-      action = {
-        name: 'myAction',
-        action: function(row) {
-          row.prepared = row.before_called;
-          row.broken = row.after_called;
-          row.action_performed = true;
-          return row;
-        },
-        before: function(row) {
-          if (row) {
-            row.before_called = true;
+      it('should set row state to null', function(){
+        scope.doAction(event, action, row);
+        expect(scope.rowStates[row.id]).toBe(null);
+      });
+
+      it('should not preventDefault on event', function(){
+        scope.doAction(event, action, row);
+        expect(event.preventDefault).not.toHaveBeenCalled();
+      });
+
+      it('should preventDefault on event when action has no url', function(){
+        action.url = '';
+        scope.doAction(event, action, row);
+        expect(event.preventDefault).toHaveBeenCalled();
+      });
+
+    });
+
+    describe('doAction', function() {
+      var row, action, newRowCreated;
+
+      beforeEach(function(){
+        row = {
+          id: Math.round(Math.random()*100),
+          name: 'some existing item',
+          prepared: false,
+          before_called: false,
+          after_called: false
+        };
+        newRowCreated  = {name: 'newRowCreated'};
+        action = {
+          name: 'myAction',
+          action: function(row) {
+            row.prepared = row.before_called;
+            row.broken = row.after_called;
+            row.action_performed = true;
+            return row;
+          },
+          before: function(row) {
+            if (row) {
+              row.before_called = true;
+            }
+            return row;
+          },
+          after: function(row) {
+            row.after_called = true;
+            return row;
           }
-          return row;
-        },
-        after: function(row) {
-          row.after_called = true;
-          return row;
+        };
+        createSut();
+      });
+
+      it('calls before-callback before calling action',function(){
+        scope.doAction(event, action, row);
+        expect(row.prepared).toEqual(true);
+      });
+
+      it('calls action with row',function(){
+        scope.doAction(event, action, row);
+        expect(row.action_performed).toEqual(true);
+      });
+
+      it('calls after-callback after calling action',function(){
+        scope.doAction(event, action, row);
+        expect(row.broken).toEqual(false);
+      });
+
+      it('uses results of action call for after callback when row not sent',function(){
+        action.action = function(row){
+          return newRowCreated;
         }
-      };
-      createSut();
-    });
+        action.after = jasmine.createSpy('after');
+        scope.doAction(event, action);
+        expect(action.after).toHaveBeenCalledWith(newRowCreated);
+      });
 
-    it('calls before callback before calling action',function(){
-      scope.doConfirmedAction(action, row);
-      expect(row.prepared).toEqual(true);
-    });
-
-    it('calls action with row',function(){
-      scope.doConfirmedAction(action, row);
-      expect(row.action_performed).toEqual(true);
-    });
-
-    it('calls after callback after calling action',function(){
-      scope.doConfirmedAction(action, row);
-      expect(row.broken).toEqual(false);
-    });
-
-    it('uses results of action call for after callback when row not sent',function(){
-      action.action = function(row){
-        return newRowCreated;
-      }
-      action.after = jasmine.createSpy('after');
-      scope.doConfirmedAction(action);
-      expect(action.after).toHaveBeenCalledWith(newRowCreated);
-    });
-
-    it('returns row when sent',function(){
-      expect(scope.doConfirmedAction(action, row)).toEqual(row);
-    });
-
-    it('returns results of action when row have not sent',function(){
-      action.action = function(row){
-        return newRowCreated;
-      }
-      action.after = jasmine.createSpy('after');
-      expect(scope.doConfirmedAction(action)).toEqual(newRowCreated);
     });
 
   });
+
 
   describe('helpers', function(){
     beforeEach(function(){
       createSut();
     });
     
-    it('nullifies row.confirmation on cancelling Action', function(){
-      var row = {confirmation:{text: 'some text'}};
-      scope.cancelAction(row);
-      expect(row.confirmation).toEqual(null);
-    });
-
     it('actionCssClass returns action cssClass', function(){
       var action = {cssClass: 'someClass'};
       expect(scope.actionCssClass(action)).toEqual('someClass');

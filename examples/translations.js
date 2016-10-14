@@ -1,7 +1,9 @@
 I18n.translations = {
   "en": {
     actions: "Actions",
-    add_new: 'Add new',
+    add_new: {
+      phone: 'Add new phone'
+    },
     new: 'Add new',
     remove: 'Remove',
     edit: 'Edit',

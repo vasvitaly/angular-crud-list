@@ -1,1 +1,1 @@
-<h2 class="sub-header">{{'add_new' | i18n : options.actionsScope.currentPage }}</h2><div class="row"><div class="col-md-12" ng-include="listActions.new.templateUrl || rowActions.edit.templateUrl"></div></div>
+<h2 class="sub-header">{{'add_new.'+modelName | i18n }}</h2><div class="row"><div class="col-md-12" ng-include="rowAction().templateUrl"></div></div>

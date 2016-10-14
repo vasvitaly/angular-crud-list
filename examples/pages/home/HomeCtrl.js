@@ -44,7 +44,7 @@ angular.module('myApp').factory("Phone", ["$resource", function($resource) {
       },
       { 
         fieldId: 'age',
-        title: 'age',
+        title: 'Phone Age',
         width: '70'
       },
       { 
@@ -56,6 +56,26 @@ angular.module('myApp').factory("Phone", ["$resource", function($resource) {
     listActions: {
       new: {
         templateUrl: '/examples/pages/home/editPhoneForm.html'
+      },
+      newDefaults: {
+        action: 'new',
+        title: 'Rich new',
+        templateUrl: '/examples/pages/home/phoneFormRich.html',
+        cssClass: 'btn-info',
+        confirmation: {
+          yesText: 'Really do rich?',
+          noText: 'Oh no!'
+        }
+      },
+      detailed: {
+        title: 'Detailed List',
+        url: '/phones',
+        cssClass: 'btn-success',
+        confirmation: {
+          text: 'Do you really want a lot of data? It could be slooowly....',
+          yesText: 'Yeah really, man.',
+          noText: 'No! I need it right now!'
+        }
       }
     },
     rowActions: {

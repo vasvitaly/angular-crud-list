@@ -16,9 +16,11 @@ var vvvCrudListController = function($scope) {
   $scope.showActions = {};
   $scope.columns = $scope.options.columns;
   $scope.modelName = $scope.options.modelName;
+  $scope.rowStates = {};
+  $scope.idField = $scope.options.idField || 'id';
 
   $scope.rowTpl = function(row) {
-    if (row && row.state) {
+    if ($scope.rowStates[rowId(row)] && $scope.rowStates[rowId(row)][0] === 'edit') {
       return 'crud-list/edit_row.html';
     } else {
       return 'crud-list/row.html';
@@ -45,19 +47,16 @@ var vvvCrudListController = function($scope) {
   };
 
   $scope.newRowTpl = function() {
-    return $scope.row && $scope.row.state == 'new' ? 'crud-list/add_form.html' : '';
+    return $scope.row && $scope.rowStates['new'] && $scope.rowStates['new'][0] === 'edit' ? 'crud-list/add_form.html' : '';
   };
 
   $scope.new = function() {
     $scope.row = $scope.dataSource.newRecord();
-    $scope.row.state = 'new';
     return $scope.row;
   };
   
   $scope.cancel = function(row) {
-    row.state = null;
-    row.action = null;
-    return false;
+    $scope.rowStates[rowId(row)] = null;
   };
 
   $scope.save = function(row, oForm) {
@@ -65,11 +64,13 @@ var vvvCrudListController = function($scope) {
       return false;
     }
     clearRowErrors(row);
-    $scope.dataSource.save(row, true, onSuccessSave.bind(this));
+    $scope.dataSource.save(row, true, onSuccessSave);
   };
 
   $scope.remove = function(row) {
-    $scope.dataSource.remove(row.id);
+    var rid = rowId(row);
+    $scope.dataSource.remove(rid);
+    $scope.rowStates[rid] = null;
     return row;
   };
 
@@ -84,41 +85,70 @@ var vvvCrudListController = function($scope) {
     return '';
   };
 
-  $scope.doAction = function(action, row) {
-    if (action.confirmation) {
-      row.confirmation = action.confirmation;
-      row.action = action;
+  $scope.doAction = function(event, action, row, confirmed) {
+    if (event && event.stopImmediatePropagation) event.stopImmediatePropagation();
+    if (action.confirmation && !confirmed) {
+      $scope.rowStates[rowId(row)] = ['confirmation', action];
+      event.preventDefault();
       return false;
     }
     if (action.action) {
-      row = $scope.doConfirmedAction(action, row);
-    } 
+      row = callAction(action, row);
+    }
     if (action.templateUrl) {
-      row.state = action.name;
+      $scope.rowStates[rowId(row)] = ['edit', action];
+      preventDefault(event);
+    } else {
+      $scope.rowStates[rowId(row)] = null;
     }
-    return false;
-  };
-
-  $scope.doConfirmedAction = function(action, row) {
-    var results;
-    if (action.before && angular.isFunction(action.before)) {
-      action.before(row);
+    if (!action.url || action.url === '') {
+      preventDefault(event);
     }
-    
-    results = action.action(row);
-
-    if (action.after && angular.isFunction(action.after)) {
-      action.after(row || results);
-    }
-    return (row || results);
-  };
-
-  $scope.cancelAction = function(row) {
-    row.confirmation = null;
+    return true;
   };
 
   $scope.actionCssClass = function(action){
     return action.cssClass || actionCssClasses[action.name] || '';
+  };
+
+  $scope.rowState = function(row){
+    if ($scope.rowStates[rowId(row)]) {
+      return $scope.rowStates[rowId(row)][0] || '';
+    }
+    return '';
+  };
+
+  $scope.rowAction = function(row){
+    if ($scope.rowStates[rowId(row)] && $scope.rowStates[rowId(row)][1]) {
+      return $scope.rowStates[rowId(row)][1];
+    }
+    return {};
+  };
+  
+  $scope.rowConfirmation = function(row){
+    return $scope.rowAction(row).confirmation || {};
+  };
+
+  var rowId = function(row){
+    return row && row[$scope.idField] ? row[$scope.idField] : 'new';
+  };
+
+  var preventDefault = function(event) {
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+  };
+
+  var callAction = function(action, row) {
+    var results;
+    if (action.before && angular.isFunction(action.before)) {
+      action.before(row);
+    }
+    results = action.action(row);
+    if (action.after && angular.isFunction(action.after)) {
+      action.after(row || results);
+    }
+    return (row || results);
   };
 
   var checkRowActions = function() {
@@ -152,13 +182,18 @@ var vvvCrudListController = function($scope) {
   };
 
   var isActionCorrect = function(action){
+    var allowedActions = ['new', 'remove'];
+    
     if (!action.title || action.title === '') {
       action.title = action.name;
+    }
+    if (action.action && allowedActions.indexOf(action.action) !== -1 ) {
+      action.action = $scope[action.action];
     }
     if ( (!action.url || action.url === '') && 
          (!action.action || !angular.isFunction(action.action) ) 
        ) {
-      if (action.name == 'new' || action.name == 'remove') {
+      if (allowedActions.indexOf(action.name) !== -1) {
         action.action = $scope[action.name];
         if (action.confirmation !== false && !action.confirmation && actionConfirmations[action.name]) {
           action.confirmation = actionConfirmations[action.name];
@@ -169,6 +204,26 @@ var vvvCrudListController = function($scope) {
       }
     }
     return true;
+  };
+
+
+  var checkColumns = function() {
+    var i, column;
+    for (i=0; i<$scope.columns.length; i++) {
+      column = $scope.columns[i];
+      if (!column.fieldId) {
+        $scope.errors.push("Column " + i + " has no fieldId.");
+        continue;
+      }
+      if (!column.title) {
+        column.title = column.fieldId;
+      }
+      if ($scope.modelName) {
+        if (column.titlePrefix) {
+          column.prefix = column.titlePrefix + '.' + $scope.modelName;
+        }
+      }
+    }
   };
 
   var populateUrl = function(url, data) {
@@ -186,7 +241,7 @@ var vvvCrudListController = function($scope) {
   };
 
   var onSuccessSave = function(row) {
-    row.state = null;
+    $scope.rowStates[rowId(row)] = null;
     if ($scope.row && $scope.row.id == row.id) {
       $scope.row = null;
     }
@@ -206,6 +261,7 @@ var vvvCrudListController = function($scope) {
     }
   };
 
+  checkColumns();
   checkRowActions();
   checkListActions();
 

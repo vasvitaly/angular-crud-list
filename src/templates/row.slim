@@ -1,16 +1,16 @@
 td ng-repeat="column in columns" ng-include="cellTpl(column)"
 
 td.actions ng-if="showActions.rowActions"
-  div.action-block ng-show="!row.confirmation"
+  div.action-block ng-show="rowState(row) !== 'confirmation'"
     span ng-repeat="action in rowActions" 
-      a.btn ng-href="{{actionUrl(action, row)}}" target="_blank" ng-click="doAction(action, row)" ng-class="actionCssClass(action)"
+      a.btn ng-href="{{actionUrl(action, row)}}" target="_blank" ng-click="doAction($event, action, row)" ng-class="actionCssClass(action)"
         | {{ action.title | i18n }}
       | &nbsp;
     
-  div.action-confirmation-block ng-if="row.confirmation"
-    span.question ng-bind="row.confirmation.text"
-    button.btn.btn-danger.btn-xs ng-click="doConfirmedAction(row.action,row)"
-      | {{ row.confirmation.yesText || 'sure' | i18n }}
+  div.action-confirmation-block ng-if="rowState(row) == 'confirmation'"
+    span.question ng-bind="rowConfirmation(row).text"
+    a.btn.btn-danger.btn-xs ng-href="{{actionUrl(rowAction(row), row)}}" target="_blank" ng-click="doAction($event, rowAction(row), row, true)"
+      | {{ rowConfirmation(row).yesText || 'sure' | i18n }}
     | &nbsp;
-    button.btn.btn-default.btn-md ng-click="cancelAction(row)"
-      | {{ row.confirmation.noText || 'cancel' | i18n }}
+    button.btn.btn-default.btn-md ng-click="cancel(row)"
+      | {{ rowConfirmation(row).noText || 'cancel' | i18n }}
