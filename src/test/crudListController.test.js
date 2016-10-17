@@ -631,6 +631,57 @@ describe('vvvCrudListController', function(){
       expect(scope.actionCssClass({name: 'someSpecialAction'})).toEqual('');
     });
 
+    describe('rowState', function() {
+      it('returns empty string when no state set for row', function(){
+        expect(scope.rowState({id: 'no_id'})).toEqual('');
+      });
+
+      it('returns empty string when state is not array', function(){
+        scope.rowStates[1] = {};
+        expect(scope.rowState({id: 1})).toEqual('');
+      });
+
+      it('returns row state when set', function(){
+        scope.rowStates[1] = ['edit', {action:''}];
+        expect(scope.rowState({id: 1})).toEqual('edit');
+      });
+    });
+
+    describe('rowAction', function() {
+      it('returns empty object when no state set for row', function(){
+        expect(scope.rowAction({id: 'no_id'})).toEqual({});
+      });
+
+      it('returns empty object when action is not set in rowStates', function(){
+        scope.rowStates[1] = {};
+        expect(scope.rowAction({id: 1})).toEqual({});
+      });
+
+      it('returns row action when set', function(){
+        var rowAction = {action: 'edit'};
+        scope.rowStates[1] = ['edit', rowAction];
+        expect(scope.rowAction({id: 1})).toEqual(rowAction);
+      });
+    });
+
+    describe('rowConfirmation', function() {
+      it('returns empty object when row has no curent action', function(){
+        expect(scope.rowConfirmation({id: 'no_id'})).toEqual({});
+      });
+
+      it('returns empty object when row action has no confirmation', function(){
+        scope.rowStates[1] = ['edit',{action:{action: ''}}];
+        expect(scope.rowConfirmation({id: 1})).toEqual({});
+      });
+
+      it('returns row confirmation object when row action has it', function(){
+        var rowConfirmation = {text: 'someText'};
+        var rowAction = {action: 'edit', confirmation: rowConfirmation};
+        scope.rowStates[1] = ['edit', rowAction];
+        expect(scope.rowConfirmation({id: 1})).toEqual(rowConfirmation);
+      });
+    });
+
   });
 
 
