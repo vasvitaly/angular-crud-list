@@ -9,7 +9,8 @@ angular.module('myApp', [
 'ngResource',
 'ngRoute', 	//additional angular modules
 'vasvitaly.angular-data-source',
-'vasvitaly.angular-crud-list'
+'vasvitaly.angular-crud-list',
+'vasvitaly.angular-pagination'
 ]).
 config(['$routeProvider', '$locationProvider', '$compileProvider', function($routeProvider, $locationProvider, $compileProvider) {
 	/**

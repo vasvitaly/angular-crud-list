@@ -1,3 +1,4 @@
+(function(){
 'use strict';
 
 var vvvCrudListController = function($scope) {
@@ -268,7 +269,8 @@ var vvvCrudListController = function($scope) {
   return true;
 };
 
-angular.module('vasvitaly.angular-crud-list', [])
+
+angular.module('vasvitaly.angular-crud-list', ['vasvitaly.i18n'])
 .directive('vvvCrudList', [function() {
   return {
     restrict: 'AE',
@@ -280,23 +282,6 @@ angular.module('vasvitaly.angular-crud-list', [])
     controllerAs: 'crudList',
     controller: ['$scope', vvvCrudListController ]
   };
-}])
-.filter('i18n', function() {
-  return function(key, prefix) {
-    if (prefix) {
-      prefix = prefix.split('.');
-      if (prefix[0] == 'ARA') {
-        prefix.shift();
-        prefix = ['activerecord','attributes'].concat(prefix.slice(1,prefix.length));
-      } else if (prefix[0] == 'ARM') {
-        prefix = ['activerecord','models'].concat(prefix.slice(1,prefix.length));
-      } else if (prefix[0] == 'enum') {
-        prefix = ['enumerize','defaults'].concat(prefix.slice(1,prefix.length));
-      }
-    } else {
-      prefix = [];
-    }
-    prefix.push(key);
-    return window.I18n.t(prefix, {defaultValue: key});
-  };
-});
+}]);
+
+})();

@@ -23,7 +23,7 @@ describe('crud-list directive', function(){
 
     window.I18n = jasmine.createSpyObj('I18n', ['t']);
     window.I18n.t.and.callFake(function(key){
-      return key.join('.');
+      return key;
     });
 
     scope = $rootScope.$new();

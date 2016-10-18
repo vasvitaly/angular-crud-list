@@ -1,11 +1,6 @@
 angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($templateCache) {
   'use strict';
 
-  $templateCache.put('crud-list/add_button.html',
-    "<div class=\"col-md-2\"><a class=\"btn btn-primary\" ng-click=\"new()\" ng-href=\"{{newUrl()}}\">{{'add_new' | i18n : options.actionsScope.currentPage }}</a></div>"
-  );
-
-
   $templateCache.put('crud-list/add_form.html',
     "<h2 class=\"sub-header\">{{'add_new.'+modelName | i18n }}</h2><div class=\"row\"><div class=\"col-md-12\" ng-include=\"rowAction().templateUrl\"></div></div>"
   );

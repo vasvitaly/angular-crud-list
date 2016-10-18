@@ -16,11 +16,7 @@
   <div class="row">
     <div class="col-lg-10"> 
       <vvv-crud-list data-options="listOptions" data-source="ds"></vvv-crud-list>
-
-      <h3>Pagination Info</h3>
-      <pre>{{ds.paginationInfo()}}</pre>
-      <button ng-click="ds.paginate(ds.paginationInfo().page - 1)">Prev Page</button>
-      <button ng-click="ds.paginate(ds.paginationInfo().page + 1)">Next Page</button>
+      <vvv-pagination data-source="ds" data-options="{maxPages: 20, showInfo: true}"></vvv-crud-list>
     </div>
   </div>
   

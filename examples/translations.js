@@ -18,6 +18,12 @@ I18n.translations = {
       description: 'Description',
       image: 'Image',
       age: 'Age'
+    },
+    pagination: {
+      previous_page: 'Previous page',
+      next_page: 'Next page',
+      rows : 'Rows',
+      'of-count' : ' of '
     }
   }
 };

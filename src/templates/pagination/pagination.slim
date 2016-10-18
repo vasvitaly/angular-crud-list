@@ -1,0 +1,25 @@
+nav ng-if="isVisible()"
+  ul.pagination
+    li ng-class="{disabled: !havePreviousPage()}"
+      a href="" ng-click="setPage(previousPage())" aria-label="{{'previous_page' | i18n : 'pagination'}}"
+        span aria-hidden="true" &laquo;
+
+    li ng-repeat="page in pages()" ng-class="{active: page == ngModel.page}"
+      a href="" ng-click="setPage(page)"
+        | {{page}}
+
+    li ng-class="{disabled: !haveNextPage()}"
+      a href="" ng-click="setPage(nextPage())" aria-label="{{'next_page' | i18n : 'pagination'}}"
+        span aria-hidden="true" &raquo;
+
+  .pagination-info ng-if="options.showInfo"
+    span.page
+      | {{'rows' | i18n : 'pagination'}} 
+    span.page-limit
+      |  {{(ngModel.page - 1) * ngModel.perPage + 1}}
+      |  - 
+      |  {{ngModel.page * ngModel.perPage}}
+    span.of
+      | {{'of-count' | i18n : 'pagination'}}
+    span.total
+      | {{ngModel.totalCount}}

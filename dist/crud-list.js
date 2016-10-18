@@ -1,3 +1,4 @@
+(function(){
 'use strict';
 
 var vvvCrudListController = function($scope) {
@@ -268,7 +269,8 @@ var vvvCrudListController = function($scope) {
   return true;
 };
 
-angular.module('vasvitaly.angular-crud-list', [])
+
+angular.module('vasvitaly.angular-crud-list', ['vasvitaly.i18n'])
 .directive('vvvCrudList', [function() {
   return {
     restrict: 'AE',
@@ -280,33 +282,249 @@ angular.module('vasvitaly.angular-crud-list', [])
     controllerAs: 'crudList',
     controller: ['$scope', vvvCrudListController ]
   };
-}])
+}]);
+
+})();
+
+(function(){
+'use strict';
+
+angular.module('vasvitaly.i18n', [])
 .filter('i18n', function() {
   return function(key, prefix) {
     if (prefix) {
       prefix = prefix.split('.');
-      if (prefix[0] == 'ARA') {
-        prefix.shift();
-        prefix = ['activerecord','attributes'].concat(prefix.slice(1,prefix.length));
-      } else if (prefix[0] == 'ARM') {
-        prefix = ['activerecord','models'].concat(prefix.slice(1,prefix.length));
-      } else if (prefix[0] == 'enum') {
-        prefix = ['enumerize','defaults'].concat(prefix.slice(1,prefix.length));
+      switch (prefix[0]) {
+        case 'ARA':
+          prefix = ['activerecord','attributes'].concat(prefix.slice(1,prefix.length));
+          break;
+        case 'ARM':
+          prefix = ['activerecord','models'].concat(prefix.slice(1,prefix.length));
+          break;
+        case 'enum':
+          prefix = ['enumerize','defaults'].concat(prefix.slice(1,prefix.length));
+          break;
       }
     } else {
       prefix = [];
     }
     prefix.push(key);
-    return window.I18n.t(prefix, {defaultValue: key});
+    return window.I18n.t(prefix.join('.'), {defaultValue: key});
   };
 });
-angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($templateCache) {
-  'use strict';
 
-  $templateCache.put('crud-list/add_button.html',
-    "<div class=\"col-md-2\"><a class=\"btn btn-primary\" ng-click=\"new()\" ng-href=\"{{newUrl()}}\">{{'add_new' | i18n : options.actionsScope.currentPage }}</a></div>"
+})();
+
+(function(){
+'use strict';
+
+var vvvPaginationController = function($scope) {
+  
+  $scope.options = {
+    showPreviousPage: true,
+    showNextPage: true,
+    maxPages: 10
+  };
+  angular.merge($scope.options, $scope.settings);
+
+  $scope.ngModel = {};
+
+  $scope.$watch(function() {
+    return $scope.source && $scope.source.paginationInfo() && 
+           $scope.source.paginationInfo().totalCount;
+    }, function(newValue, oldValue) {
+      if ($scope.source && $scope.source.paginationInfo()) {
+        $scope.ngModel = $scope.source.paginationInfo();
+      }
+    }
   );
 
+  $scope.$watch(function() {
+    return $scope.source && $scope.source.paginationInfo() && 
+           $scope.source.paginationInfo().page;
+    }, function(newValue, oldValue) {
+      if ($scope.source && $scope.source.paginationInfo().page) {
+        $scope.ngModel = $scope.source.paginationInfo();
+      }
+    }
+  );
+
+  $scope.isVisible = function() {
+    return maxPage() > 1;
+  };
+
+  $scope.setPage = function(page){
+    if (page && page != $scope.ngModel.page && page > 0 && page <= maxPage()) {
+      $scope.source.paginate(page);
+    }
+  };
+
+  $scope.previousPage = function() {
+    var res = $scope.ngModel.page - 1;
+    if (res <= 0 ) {
+      res = false;
+    }
+    return res;
+  };
+
+  $scope.nextPage = function() {
+    var nextPage = $scope.ngModel.page + 1;
+    if (nextPage > maxPage()) {
+      nextPage = false;
+    }
+    return nextPage;
+  };
+
+  $scope.havePreviousPage = function() {
+    return $scope.options.showPreviousPage && $scope.previousPage();
+  };
+  
+  $scope.haveNextPage = function() {
+    return $scope.options.showNextPage && $scope.nextPage();
+  };
+
+  $scope.pages = function() {
+    var pages = [];
+    pages = fillNearRange(pages);
+    pages = fillLowerRange(pages);
+    pages = fillUpperRange(pages);
+    pages = fillUpLowerRange(pages);
+    return pages;
+  };
+
+  var maxPage = function() {
+    return Math.ceil( $scope.ngModel.totalCount / $scope.ngModel.perPage );
+  };
+
+  var fillNearRange = function(pages) {
+    var currPage = $scope.ngModel.page;
+    pages.push(currPage);
+    if (currPage > 2){
+      pages.unshift(currPage - 1);
+    }
+    if (currPage + 1 < maxPage()) {
+      pages.push(currPage + 1);
+    }
+    return pages;
+  };
+
+
+  var fillLowerRange = function(pages) {
+    var currPage = $scope.ngModel.page;
+    var maxPages = $scope.options.maxPages;
+    var range = currPage - 2;
+    var slots = Math.ceil((maxPages - 5) / 10 * 3);
+
+    var level = 1;
+    var k, page;
+    while (slots > 0) {
+      k = Math.pow(10,level);
+      page = Math.floor((pages[0] - 1) / k) * k;
+      if (page) {
+        if (page < pages[0]){
+          pages.unshift(page);
+          slots -= 1;
+        }
+        level += 1;
+      } else {
+        slots = 0;
+        if (pages[0] != 1){
+          pages.unshift(1);
+        }
+      }
+    }
+    return pages;
+  };
+
+  var fillUpLowerRange = function(pages) {
+    var currPage = $scope.ngModel.page;
+    var idx = pages.indexOf(currPage - 1);
+    var capacity = $scope.options.maxPages - pages.length;
+    var full = false;
+    var page;
+
+    while (capacity && !full) {
+      page = pages[idx] - 1;
+      if (page > 1) {
+        if (page > pages[idx-1]) {
+          pages.splice(idx, 0, page);
+          capacity -= 1;
+        } else {
+          idx -= 1;
+        }
+      } else {
+        full = true;
+      }
+    }
+    return pages;
+  };
+
+
+  var fillUpperRange = function (pages) {
+    var currPage = $scope.ngModel.page;
+    var maxPages = $scope.options.maxPages;
+    var range = maxPage() - currPage - 1;
+    var slots = maxPages - pages.length - 1;
+    var upperPages = [];
+
+    var level = 1;
+    var full = false;
+    var k, page, lastPage;
+    while (!full && slots > 0) {
+      if (upperPages.length){
+        lastPage = upperPages[upperPages.length-1];
+      } else {
+        lastPage = pages[pages.length-1];
+      }
+      k = Math.pow(10,level);
+      page = page =Math.ceil((lastPage + 1) / k) * k;
+      if (page < maxPage()) {
+        upperPages.push(page);
+        slots -= 1;
+        level += 1;
+      } else {
+        full = true;
+      }
+    }
+    
+    var max;
+    while (slots > 1) {
+      page = pages[pages.length-1] + 1;
+      max = upperPages[0] || maxPage();
+      if (page < max) {
+        pages.push(page);
+        slots -= 1;
+      } else {
+        slots = 0;
+      }
+    }
+
+    pages = pages.concat(upperPages);
+    if (pages[pages.length-1] < maxPage()) {
+      pages.push(maxPage());
+    }
+
+    return pages;
+  };
+};
+
+angular.module('vasvitaly.angular-pagination', ['vasvitaly.i18n'])
+.directive('vvvPagination', [ function() { 
+  return {
+    restrict: 'EA',
+    templateUrl: 'pagination/pagination.html',
+    scope: {
+      source: '=',
+      settings: '=options'
+    },
+    controller: ['$scope', vvvPaginationController ],
+    controllerAs: 'pagination'
+  };
+}]);
+
+})();
+angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($templateCache) {
+  'use strict';
 
   $templateCache.put('crud-list/add_form.html',
     "<h2 class=\"sub-header\">{{'add_new.'+modelName | i18n }}</h2><div class=\"row\"><div class=\"col-md-12\" ng-include=\"rowAction().templateUrl\"></div></div>"
@@ -335,6 +553,15 @@ angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($t
 
   $templateCache.put('crud-list/row.html',
     "<td ng-include=\"cellTpl(column)\" ng-repeat=\"column in columns\"></td><td class=\"actions\" ng-if=\"showActions.rowActions\"><div class=\"action-block\" ng-show=\"rowState(row) !== &#39;confirmation&#39;\"><span ng-repeat=\"action in rowActions\"><a class=\"btn\" ng-class=\"actionCssClass(action)\" ng-click=\"doAction($event, action, row)\" ng-href=\"{{actionUrl(action, row)}}\" target=\"_blank\">{{ action.title | i18n }}</a>&nbsp;</span></div><div class=\"action-confirmation-block\" ng-if=\"rowState(row) == &#39;confirmation&#39;\"><span class=\"question\" ng-bind=\"rowConfirmation(row).text\"></span><a class=\"btn btn-danger btn-xs\" ng-click=\"doAction($event, rowAction(row), row, true)\" ng-href=\"{{actionUrl(rowAction(row), row)}}\" target=\"_blank\">{{ rowConfirmation(row).yesText || 'sure' | i18n }}</a>&nbsp;<button class=\"btn btn-default btn-md\" ng-click=\"cancel(row)\">{{ rowConfirmation(row).noText || 'cancel' | i18n }}</button></div></td>"
+  );
+
+}]);
+
+angular.module('vasvitaly.angular-pagination').run(['$templateCache', function($templateCache) {
+  'use strict';
+
+  $templateCache.put('pagination/pagination.html',
+    "<nav ng-if=\"isVisible()\"><ul class=\"pagination\"><li ng-class=\"{disabled: !havePreviousPage()}\"><a aria-label=\"{{&#39;previous_page&#39; | i18n : &#39;pagination&#39;}}\" href=\"\" ng-click=\"setPage(previousPage())\"><span aria-hidden=\"true\">&laquo;</span></a></li><li ng-class=\"{active: page == ngModel.page}\" ng-repeat=\"page in pages()\"><a href=\"\" ng-click=\"setPage(page)\">{{page}}</a></li><li ng-class=\"{disabled: !haveNextPage()}\"><a aria-label=\"{{&#39;next_page&#39; | i18n : &#39;pagination&#39;}}\" href=\"\" ng-click=\"setPage(nextPage())\"><span aria-hidden=\"true\">&raquo;</span></a></li></ul><div class=\"pagination-info\" ng-if=\"options.showInfo\"><span class=\"page\">{{'rows' | i18n : 'pagination'}} </span><span class=\"page-limit\">{{(ngModel.page - 1) * ngModel.perPage + 1}} - {{ngModel.page * ngModel.perPage}}</span><span class=\"of\">{{'of-count' | i18n : 'pagination'}}</span><span class=\"total\">{{ngModel.totalCount}}</span></div></nav>"
   );
 
 }]);

@@ -1,12 +1,13 @@
 describe('vvvCrudListController', function(){
   'use strict';
   var sut, dataSource, listOptions, 
-      scope, controller, newRow;
+      scope, injector, newRow, directive;
 
   beforeEach(module('vasvitaly.angular-crud-list'));
   
-  beforeEach(inject(function($controller, $rootScope) {
-    controller = $controller;
+  beforeEach(inject(function($injector, $rootScope) {
+    injector = $injector;
+    directive = injector.get('vvvCrudListDirective')[0];
     scope = $rootScope;
     scope.options = {
       columns: [{fieldId: 'id'},{fieldId: 'name'}],
@@ -686,7 +687,7 @@ describe('vvvCrudListController', function(){
 
 
   function createSut(){
-    sut = controller(vvvCrudListController, {$scope: scope});
+    sut = injector.instantiate(directive.controller, {$scope: scope});
   };
 
 });

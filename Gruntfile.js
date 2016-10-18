@@ -36,9 +36,16 @@ module.exports = function(grunt) {
         dist: {                            // Target 
           files: [{
             expand: true,
-            cwd: 'src/templates',
+            cwd: 'src/templates/crud-list/slim',
             src: ['{,*/}*.slim'],
             dest: 'src/templates/crud-list',
+            ext: '.html'
+          },
+          {
+            expand: true,
+            cwd: 'src/templates/pagination',
+            src: ['{,*/}*.slim'],
+            dest: 'src/templates/pagination',
             ext: '.html'
           }]
         },
@@ -48,9 +55,16 @@ module.exports = function(grunt) {
           },
           files: [{
             expand: true,
-            cwd: 'src/templates',
+            cwd: 'src/templates/crud-list/slim',
             src: ['{,*/}*.slim'],
             dest: 'src/templates/crud-list',
+            ext: '.html'
+          },
+          {
+            expand: true,
+            cwd: 'src/templates/pagination',
+            src: ['{,*/}*.slim'],
+            dest: 'src/templates/pagination',
             ext: '.html'
           }]
         }
@@ -58,8 +72,16 @@ module.exports = function(grunt) {
       ngtemplates:  {
         'vasvitaly.angular-crud-list': {
           cwd:      'src/templates',
-          src:      'crud-list/**.html',
-          dest:     'dist/templates.js',
+          src:      ['crud-list/*.html'],
+          dest:     'dist/crud-list-templates.js',
+          options:    {
+            htmlmin:  { collapseWhitespace: true, collapseBooleanAttributes: true }
+          }
+        },
+        'vasvitaly.angular-pagination': {
+          cwd:      'src/templates',
+          src:      ['pagination/*.html'],
+          dest:     'dist/pagination-templates.js',
           options:    {
             htmlmin:  { collapseWhitespace: true, collapseBooleanAttributes: true }
           }
@@ -67,7 +89,7 @@ module.exports = function(grunt) {
       },
       concat: {
         app: {
-          src:    ['src/js/**.js','dist/templates.js'],
+          src:    ['src/js/**.js','dist/*templates.js'],
           dest:   'dist/crud-list.js'
         },
         css: {
@@ -132,7 +154,7 @@ module.exports = function(grunt) {
       },
       watch: {
         scripts: {
-          files: ['src/js/*.js','src/templates/*.slim','src/test/*.js'],
+          files: ['src/js/*.js','src/templates/**/*.slim','src/test/*.js'],
           tasks: ['codeCompileDev', 'karma'],
           options: {
             debounceDelay: 250
@@ -144,6 +166,7 @@ module.exports = function(grunt) {
     grunt.registerTask('codeCompileDev', [
       'slim:dev',
       'ngtemplates:vasvitaly.angular-crud-list',
+      'ngtemplates:vasvitaly.angular-pagination',
       'jshint:beforeconcatQ',
       'concat:app'
     ]);    
@@ -151,6 +174,7 @@ module.exports = function(grunt) {
     grunt.registerTask('codeCompile', [
       'slim:dist',
       'ngtemplates:vasvitaly.angular-crud-list',
+      'ngtemplates:vasvitaly.angular-pagination',
       'jshint:beforeconcat',
       'concat:app'
     ]);
