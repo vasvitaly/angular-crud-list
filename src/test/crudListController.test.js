@@ -301,9 +301,10 @@ describe('vvvCrudListController', function(){
       scope.rowStates[row.id] = ['edit',{}];
     });
 
-    it('should nullify state for the row', function(){
+    it('should remove state for the row', function(){
       scope.cancel(row);
-      expect(scope.rowStates[row.id]).toBe(null);
+
+      expect(scope.rowState(row)).toBe('');
     });
   });
 
@@ -346,7 +347,7 @@ describe('vvvCrudListController', function(){
 
         it('should nullify state for saved row', function(){
           callSaveRow();
-          expect(scope.rowStates[row.id]).toEqual(null);
+          expect(scope.rowState(row)).toBe('');
         });
 
         it('should nullify scope.row if exactly it was saved', function(){
