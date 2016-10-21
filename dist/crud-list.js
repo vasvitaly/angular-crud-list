@@ -219,9 +219,10 @@ var vvvCrudListController = function($scope) {
       if (!column.title) {
         column.title = column.fieldId;
       }
-      if ($scope.modelName) {
-        if (column.titlePrefix) {
-          column.prefix = column.titlePrefix + '.' + $scope.modelName;
+      if (column.titlePrefix) {
+        column.prefix = column.titlePrefix;
+        if ($scope.modelName) {
+          column.prefix += '.' + $scope.modelName;
         }
       }
     }
