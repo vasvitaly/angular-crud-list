@@ -93,9 +93,9 @@ var vvvCrudListController = function($scope) {
       event.preventDefault();
       return false;
     }
-    if (action.action) {
-      row = callAction(action, row);
-    }
+    
+    row = callAction(action, row);
+
     if (action.templateUrl) {
       $scope.rowStates[rowId(row)] = ['edit', action];
       preventDefault(event);
@@ -145,7 +145,9 @@ var vvvCrudListController = function($scope) {
     if (action.before && angular.isFunction(action.before)) {
       action.before(row);
     }
-    results = action.action(row);
+    if (action.action && angular.isFunction(action.action)) {
+      results = action.action(row);
+    }
     if (action.after && angular.isFunction(action.after)) {
       action.after(row || results);
     }

@@ -472,7 +472,8 @@ describe('vvvCrudListController', function(){
 
         it('sets row state to confirmation of action', function(){
           scope.doAction(event, action, row);
-          expect(scope.rowStates[row.id]).toEqual(['confirmation', action]);
+          expect(scope.rowState(row)).toEqual('confirmation');
+          expect(scope.rowAction(row)).toEqual(action);
         });
 
         it('preventDefault on event', function(){
@@ -553,7 +554,8 @@ describe('vvvCrudListController', function(){
           name: 'some existing item',
           prepared: false,
           before_called: false,
-          after_called: false
+          after_called: false,
+          action_performed: false
         };
         newRowCreated  = {name: 'newRowCreated'};
         action = {
@@ -581,6 +583,14 @@ describe('vvvCrudListController', function(){
       it('calls before-callback before calling action',function(){
         scope.doAction(event, action, row);
         expect(row.prepared).toEqual(true);
+      });
+
+      it('calls before-callback even when no action',function(){
+        action.action = null;
+        createSut();
+        scope.doAction(event, action, row);
+        expect(row.action_performed).toEqual(false);
+        expect(row.before_called).toEqual(true);
       });
 
       it('calls action with row',function(){

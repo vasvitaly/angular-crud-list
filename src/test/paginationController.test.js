@@ -264,14 +264,14 @@ describe('vvvPaginationController', function(){
       createSut();
     });
 
-    xit('should show all pages when they fit maxPages', function(){
+    it('should show all pages when they fit maxPages', function(){
       for (paginationInfo.page = 1; paginationInfo.page <= 10; paginationInfo.page++) {
         scope.$apply();    
         expect(sut.pages()).toEqual([1,2,3,4,5,6,7,8,9,10]);
       }
     });
 
-    xit('should show all pages when they fit maxPages', function(){
+    it('should show all pages when they fit maxPages', function(){
       paginationInfo.perPage = 20;
       for (paginationInfo.page = 1; paginationInfo.page <= 5; paginationInfo.page++) {
         scope.$apply();
@@ -279,21 +279,21 @@ describe('vvvPaginationController', function(){
       }
     });
 
-    xdescribe('having more pages than maxPages', function(){
+    describe('having more pages than maxPages', function(){
 
       beforeEach(function(){
         paginationInfo.totalCount = 120;
       });
 
       it('should show first, last, current pages, near range and upper range ', function(){
-        for (paginationInfo.page = 1; paginationInfo.page <= 4; paginationInfo.page++) {
+        for (paginationInfo.page = 1; paginationInfo.page <= 3; paginationInfo.page++) {
           scope.$apply();
           expect(sut.pages()).toEqual([1,2,3,4,5,6,7,8,10,12]);
         }
       });
 
       it('should show first, last, current pages, near range and upper range ', function(){
-        for (paginationInfo.page = 5; paginationInfo.page <= 8; paginationInfo.page++) {
+        for (paginationInfo.page = 4; paginationInfo.page <= 8; paginationInfo.page++) {
           scope.$apply();
           expect(sut.pages()).toEqual([1,3,4,5,6,7,8,9,10,12]);
         }
