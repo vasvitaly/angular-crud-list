@@ -1,6 +1,6 @@
 describe('vvvCrudListController', function(){
   'use strict';
-  var sut, dataSource, listOptions, 
+  var sut, dataSource, listOptions, filteredRows,
       scope, injector, newRow, directive;
 
   beforeEach(module('vasvitaly.angular-crud-list'));
@@ -21,10 +21,68 @@ describe('vvvCrudListController', function(){
       }
     };
     newRow = { id: null, name: 'new Item' };
-    scope.dataSource = jasmine.createSpyObj('dataSource', ['newRecord', 'save', 'remove']);
+    filteredRows = [
+      { id: 1, name: 'first Item' },
+      { id: 10, name: 'tenth Item' }
+    ];
+    scope.dataSource = jasmine.createSpyObj('dataSource', ['newRecord', 'save', 'remove', 'filteredRows']);
     scope.dataSource.newRecord.and.returnValue(newRow);
+    scope.dataSource.filteredRows.and.returnValue(filteredRows);
     
   }));
+
+  describe('checking columns', function(){
+    describe('when column has no fieldId', function(){
+      beforeEach(function(){
+        scope.options.columns.push({title: 'additional column', titlePrefix: 'ARA'});
+        createSut();
+      });
+
+      it('adds error', function(){
+        expect(scope.errors[0]).toEqual("Column 2 has no fieldId.");
+      });
+
+      it('does not process it', function(){
+        expect(scope.columns[2].prefix).not.toBeDefined();
+      });
+    });
+    
+    describe('when column has no title', function(){
+      beforeEach(function(){
+        createSut();
+      });
+
+      it('sets title equal fieldId', function(){
+        var i;
+        for (i in scope.columns) {
+          expect(scope.columns[i].title).toEqual(scope.columns[i].fieldId);
+        }
+      });
+    });
+
+    describe('setting column.prefix', function(){
+      beforeEach(function(){
+        scope.options.columns[1].titlePrefix = 'ARA';
+        createSut();
+      });
+
+      it('dont set prefix when column has no titlePrefix', function(){
+        expect(scope.columns[0].prefix).not.toBeDefined();
+      });
+
+      it('set prefix as titlePrefix.modelName', function(){
+        expect(scope.columns[1].prefix).toEqual(scope.columns[1].titlePrefix+'.'+scope.options.modelName);
+      });
+
+      it('set prefix as titlePrefix only when options.modelName not set', function(){
+        scope.options.modelName = null;
+        createSut();
+        expect(scope.columns[1].prefix).toEqual(scope.columns[1].titlePrefix);
+      });
+    });    
+
+  });
+
 
   describe('checking RowActions', function(){
     
@@ -54,6 +112,12 @@ describe('vvvCrudListController', function(){
       createSut();
       expect(scope.rowActions.edit.title).toEqual('edit');
     });
+
+    it('set action from allowed when action.action is string name of allowed action',function(){
+      scope.options.rowActions.new_defaults = {action:'new'};
+      createSut();
+      expect(scope.rowActions.new_defaults.action).toEqual(scope.new);
+    });
     
     describe('when action has no action, url, templateUrl', function(){
       it('sets corresponding action from scope for `remove`', function(){
@@ -79,6 +143,33 @@ describe('vvvCrudListController', function(){
         expect(scope.errors[0]).toEqual('Action "details" has nothing to do.');
       });
     });
+
+    describe('checking showedWhen condition', function(){
+      it('adds error when showedWhen is not a function', function(){
+        scope.options.rowActions.edit.showedWhen = 'some condition';
+        createSut();
+        expect(scope.errors[0]).toEqual('Action "edit".showedWhen should be a function.');
+      });
+      it('nullifies showedWhen action property', function(){
+        scope.options.rowActions.edit.showedWhen = 'some condition';
+        createSut();
+        expect(scope.options.rowActions.edit.showedWhen).toBe(null);
+      });
+    });
+
+    describe('checking activeWhen condition', function(){
+      it('adds error when activeWhen is not a function', function(){
+        scope.options.rowActions.edit.activeWhen = 'some condition';
+        createSut();
+        expect(scope.errors[0]).toEqual('Action "edit".activeWhen should be a function.');
+      });
+      it('nullifies activeWhen action property', function(){
+        scope.options.rowActions.edit.activeWhen = 'some condition';
+        createSut();
+        expect(scope.options.rowActions.edit.activeWhen).toBe(null);
+      });
+    });
+
   });
 
   describe('checking listActions', function(){
@@ -451,6 +542,11 @@ describe('vvvCrudListController', function(){
       createSut();
     });
 
+    it('should return false when actionDisabled', function(){
+      expect(scope.doAction(event, {activeWhen: function(){return false}}, row)).toEqual(false);
+      expect(event.stopImmediatePropagation).not.toHaveBeenCalled();
+    });
+
     it('should stopImmediatePropagation on event if present', function(){
       scope.doAction(event, {}, row);
       expect(event.stopImmediatePropagation).toHaveBeenCalled();
@@ -609,7 +705,7 @@ describe('vvvCrudListController', function(){
         }
         action.after = jasmine.createSpy('after');
         scope.doAction(event, action);
-        expect(action.after).toHaveBeenCalledWith(newRowCreated);
+        expect(action.after).toHaveBeenCalledWith(newRowCreated, scope);
       });
 
     });
@@ -693,6 +789,114 @@ describe('vvvCrudListController', function(){
         expect(scope.rowConfirmation({id: 1})).toEqual(rowConfirmation);
       });
     });
+
+    describe('actionShowed', function(){
+      it('returns true when action has no showedWhen condition', function(){
+        expect(scope.actionShowed({},{})).toEqual(true);
+      });
+
+      it('returns showedWhen result when showedWhen is present', function(){
+        expect(scope.actionShowed({showedWhen: function(){return 123}},{})).toEqual(123);
+      });
+    });
+
+    describe('actionDisabled', function(){
+      it('returns false when action has no activeWhen condition', function(){
+        expect(scope.actionDisabled({},{})).toEqual(false);
+      });
+
+      it('returns ! activeWhen result when activeWhen is present', function(){
+        expect(scope.actionDisabled({activeWhen: function(){return 123}},{})).toEqual(false);
+      });
+    }); 
+
+  });
+
+  describe('multiselect', function() {
+    beforeEach(function(){
+      scope.options.multiSelectEnabled = true;
+      createSut();
+    });
+
+    it('options.multiSelectEnabled enables multiselect on start', function(){
+      expect(scope.multiSelect.enabled).toEqual(true);
+    });
+
+    it('multiselect disabled by default', function(){
+      scope.options.multiSelectEnabled = null;
+      createSut();
+      expect(scope.multiSelect.enabled).toEqual(false);
+    });
+
+    it('toggles MultiSelect', function(){
+      expect(scope.multiSelect.enabled).toEqual(true);
+      scope.toggleMultiSelect();
+      expect(scope.multiSelect.enabled).toEqual(false);
+      scope.toggleMultiSelect();
+      expect(scope.multiSelect.enabled).toEqual(true);
+    });
+
+    it('enables MultiSelect', function(){
+      scope.toggleMultiSelect();
+      expect(scope.multiSelect.enabled).toEqual(false);
+      scope.enableMultiSelect();
+      expect(scope.multiSelect.enabled).toEqual(true);
+    });
+
+    it('disables MultiSelect', function(){
+      expect(scope.multiSelect.enabled).toEqual(true);
+      scope.disableMultiSelect();
+      expect(scope.multiSelect.enabled).toEqual(false);
+    });
+
+    describe('multiSelectToggleAll', function(){
+      
+      it('deselects all rows when multiSelect.checkedAll is false', function(){
+        scope.multiSelect.checkedAll = false;
+        scope.multiSelectToggleAll();
+        expect(scope.multiSelect.selectedRows).toEqual({});
+      });
+
+      it('selects all rows when multiSelect.checkedAll is true', function(){
+        var i, expected = {};
+        for (i in filteredRows) {
+          expected[filteredRows[i].id] = true;
+        }
+        scope.multiSelect.checkedAll = true;
+        scope.multiSelectToggleAll();
+        expect(scope.multiSelect.selectedRows).toEqual(expected);
+      });
+
+      it('empty when dataSource has no data', function(){
+        scope.dataSource.filteredRows.and.returnValue(null);
+        scope.multiSelect.checkedAll = true;
+        scope.multiSelectToggleAll();
+        expect(scope.multiSelect.selectedRows).toEqual({});
+      });
+    });
+
+    describe('checkAllRowsSelected', function(){
+
+      beforeEach(function(){
+        var i;
+        for (i in filteredRows) {
+          scope.multiSelect.selectedRows[filteredRows[i].id] = true;
+        }
+      });
+
+      it('sets multiSelect.checkedAll to true when all the rows selected', function(){
+        scope.multiSelect.checkedAll = false;
+        scope.checkAllRowsSelected();
+        expect(scope.multiSelect.checkedAll).toEqual(true);
+      });
+
+      it('sets multiSelect.checkedAll to false when not all the rows selected', function(){
+        scope.multiSelect.selectedRows[filteredRows[0].id] = false;
+        scope.multiSelect.checkedAll = true;
+        scope.checkAllRowsSelected();
+        expect(scope.multiSelect.checkedAll).toEqual(false);
+      });
+    }); 
 
   });
 

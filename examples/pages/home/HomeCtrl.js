@@ -76,19 +76,30 @@ angular.module('myApp').factory("Phone", ["$resource", function($resource) {
           yesText: 'Yeah really, man.',
           noText: 'No! I need it right now!'
         }
+      },
+      toggleMultiSelect: {
+        title: 'Toggle Multiselect',
+        action: function(row, scope) {
+          scope.toggleMultiSelect();
+        },
+        cssClass: 'btn-info'
       }
     },
     rowActions: {
       edit: {
-        templateUrl: '/examples/pages/home/editPhoneForm.html'
+        templateUrl: '/examples/pages/home/editPhoneForm.html',
+        showedWhen: function(row){return row.age <= 10;}
       },
-      remove: {},
+      remove: {
+        activeWhen: function(row){return row.age > 10;}
+      },
       details: {
         title: 'details',
         url: '/phones/:id/details',
         cssClass: 'btn-success btn-md'
       }
-    }
+    },
+    multiSelectEnabled: false
   };
 
 }]);

@@ -14,14 +14,67 @@ var vvvCrudListController = function($scope) {
     edit: 'btn-info btn-md'
   };
   $scope.errors = [];
+  
   $scope.showActions = {};
   $scope.columns = $scope.options.columns;
   $scope.modelName = $scope.options.modelName;
   $scope.rowStates = {};
   $scope.idField = $scope.options.idField || 'id';
+  
+  $scope.multiSelect = {
+    checkedAll: false,
+    selectedRows: {},
+    enabled: $scope.options.multiSelectEnabled || false
+  };
+
+  $scope.toggleMultiSelect = function() {
+    if ($scope.multiSelect.enabled) {
+      $scope.disableMultiSelect();
+    } else {
+      $scope.enableMultiSelect();
+    }
+  };
+
+  $scope.enableMultiSelect = function() {
+    $scope.multiSelect.enabled = true;
+  };
+
+  $scope.disableMultiSelect = function() {
+    $scope.multiSelect.enabled = false;
+    $scope.multiSelect.selectedRows = {};
+    $scope.multiSelect.checkedAll = false;
+  };
+
+  $scope.multiSelectToggleAll = function() {
+    if ($scope.multiSelect.checkedAll) {
+      var rowIds = ($scope.dataSource.filteredRows() || []).map($scope.rowId);
+      var i;
+      for (i in rowIds) {
+        $scope.multiSelect.selectedRows[rowIds[i]] = true;
+      }
+    } else {
+      $scope.multiSelect.selectedRows = {};
+    }
+  };
+
+  $scope.checkAllRowsSelected = function() {
+    $scope.multiSelect.checkedAll = $scope.dataSource.filteredRows().length == $scope.getSelectedRowIds().length;
+    return $scope.multiSelect.checkedAll;
+  };
+
+  $scope.getSelectedRowIds = function() {
+    var id;
+    var selectedIds = [];
+    for (id in $scope.multiSelect.selectedRows) {
+      if ($scope.multiSelect.selectedRows[id]) {
+        selectedIds.push(id);
+      }
+    }
+    return selectedIds;
+  };
 
   $scope.rowTpl = function(row) {
-    if ($scope.rowStates[rowId(row)] && $scope.rowStates[rowId(row)][0] === 'edit') {
+    if ($scope.rowStates[$scope.rowId(row)] && $scope.rowStates[$scope.rowId(row)][0] === 'edit') {
       return 'crud-list/edit_row.html';
     } else {
       return 'crud-list/row.html';
@@ -57,7 +110,7 @@ var vvvCrudListController = function($scope) {
   };
   
   $scope.cancel = function(row) {
-    $scope.rowStates[rowId(row)] = null;
+    $scope.rowStates[$scope.rowId(row)] = null;
   };
 
   $scope.save = function(row, oForm) {
@@ -69,7 +122,7 @@ var vvvCrudListController = function($scope) {
   };
 
   $scope.remove = function(row) {
-    var rid = rowId(row);
+    var rid = $scope.rowId(row);
     $scope.dataSource.remove(rid);
     $scope.rowStates[rid] = null;
     return row;
@@ -87,9 +140,12 @@ var vvvCrudListController = function($scope) {
   };
 
   $scope.doAction = function(event, action, row, confirmed) {
+    if ($scope.actionDisabled(action,row)) {
+      return false;
+    }
     if (event && event.stopImmediatePropagation) event.stopImmediatePropagation();
     if (action.confirmation && !confirmed) {
-      $scope.rowStates[rowId(row)] = ['confirmation', action];
+      $scope.rowStates[$scope.rowId(row)] = ['confirmation', action];
       event.preventDefault();
       return false;
     }
@@ -97,10 +153,10 @@ var vvvCrudListController = function($scope) {
     row = callAction(action, row);
 
     if (action.templateUrl) {
-      $scope.rowStates[rowId(row)] = ['edit', action];
+      $scope.rowStates[$scope.rowId(row)] = ['edit', action];
       preventDefault(event);
     } else {
-      $scope.rowStates[rowId(row)] = null;
+      $scope.rowStates[$scope.rowId(row)] = null;
     }
     if (!action.url || action.url === '') {
       preventDefault(event);
@@ -112,16 +168,30 @@ var vvvCrudListController = function($scope) {
     return action.cssClass || actionCssClasses[action.name] || '';
   };
 
+  $scope.actionShowed = function(action, row) {
+    if (action.showedWhen) {
+      return action.showedWhen(row, $scope);
+    }
+    return true;
+  };
+
+  $scope.actionDisabled = function(action, row) {
+    if (action.activeWhen) {
+      return !action.activeWhen(row, $scope);
+    }
+    return false;
+  };
+
   $scope.rowState = function(row){
-    if ($scope.rowStates[rowId(row)]) {
-      return $scope.rowStates[rowId(row)][0] || '';
+    if ($scope.rowStates[$scope.rowId(row)]) {
+      return $scope.rowStates[$scope.rowId(row)][0] || '';
     }
     return '';
   };
 
   $scope.rowAction = function(row){
-    if ($scope.rowStates[rowId(row)] && $scope.rowStates[rowId(row)][1]) {
-      return $scope.rowStates[rowId(row)][1];
+    if ($scope.rowStates[$scope.rowId(row)] && $scope.rowStates[$scope.rowId(row)][1]) {
+      return $scope.rowStates[$scope.rowId(row)][1];
     }
     return {};
   };
@@ -130,7 +200,8 @@ var vvvCrudListController = function($scope) {
     return $scope.rowAction(row).confirmation || {};
   };
 
-  var rowId = function(row){
+
+  $scope.rowId = function(row){
     return row && row[$scope.idField] ? row[$scope.idField] : 'new';
   };
 
@@ -143,13 +214,13 @@ var vvvCrudListController = function($scope) {
   var callAction = function(action, row) {
     var results;
     if (action.before && angular.isFunction(action.before)) {
-      action.before(row);
+      action.before(row, $scope);
     }
     if (action.action && angular.isFunction(action.action)) {
-      results = action.action(row);
+      results = action.action(row, $scope);
     }
     if (action.after && angular.isFunction(action.after)) {
-      action.after(row || results);
+      action.after(row || results, $scope);
     }
     return (row || results);
   };
@@ -189,6 +260,14 @@ var vvvCrudListController = function($scope) {
     
     if (!action.title || action.title === '') {
       action.title = action.name;
+    }
+    if (action.showedWhen && !angular.isFunction(action.showedWhen)) {
+      action.showedWhen = null;
+      $scope.errors.push('Action "' + action.name + '".showedWhen should be a function.');
+    }
+    if (action.activeWhen && !angular.isFunction(action.activeWhen)) {
+      action.activeWhen = null;
+      $scope.errors.push('Action "' + action.name + '".activeWhen should be a function.');
     }
     if (action.action && allowedActions.indexOf(action.action) !== -1 ) {
       action.action = $scope[action.action];
@@ -245,7 +324,7 @@ var vvvCrudListController = function($scope) {
   };
 
   var onSuccessSave = function(row) {
-    $scope.rowStates[rowId(row)] = null;
+    $scope.rowStates[$scope.rowId(row)] = null;
     if ($scope.row && $scope.row.id == row.id) {
       $scope.row = null;
     }
@@ -573,7 +652,7 @@ angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($t
 
 
   $templateCache.put('crud-list/main.html',
-    "<div ng-if=\"errors.length &gt; 0\"><p ng-bind=\"error\" ng-repeat=\"error in errors\"></p></div><div ng-if=\"errors.length == 0\"><div class=\"row listActionsPanel\" ng-if=\"showActions.listActions\"><div class=\"listActions\" ng-if=\"rowState() !== &#39;confirmation&#39;\"><span ng-repeat=\"action in listActions\"><a class=\"btn\" ng-class=\"actionCssClass(action)\" ng-click=\"doAction($event, action, row)\" ng-href=\"{{actionUrl(action)}}\" target=\"_blank\">{{ action.title | i18n }}</a>&nbsp;</span></div><div class=\"action-confirmation-block\" ng-if=\"rowState() == &#39;confirmation&#39;\"><span class=\"question\" ng-bind=\"rowConfirmation().text\"></span><a class=\"btn btn-danger btn-xs\" ng-click=\"doAction($event, rowAction(), null, true)\" ng-href=\"{{actionUrl(rowAction())}}\" target=\"_blank\">{{ rowConfirmation().yesText || 'sure' | i18n }}</a>&nbsp;<button class=\"btn btn-default btn-md\" ng-click=\"cancel()\">{{ rowConfirmation().noText || 'cancel' | i18n }}</button></div></div><div class=\"row new-item-block\" ng-include=\"newRowTpl()\"></div><br><div class=\"row items-list\"><div class=\"table-responsive\"><table class=\"table table-striped\"><thead><tr><th ng-class=\"{&#39;clickable&#39;: !column.notSortable}\" ng-click=\"dataSource.sortBy(column.fieldId)\" ng-repeat=\"column in columns\" width=\"{{column.width || &#39;*&#39;}}\"><span class=\"icon\" ng-class=\"{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}\" ng-if=\"!column.notSortable\"></span><span ng-bind=\"column.title | i18n : column.prefix\"></span></th><th ng-show=\"showActions\">{{'actions' | i18n}}</th></tr></thead><tbody><tr ng-include=\"rowTpl(row)\" ng-repeat=\"row in dataSource.filteredRows()\"></tr></tbody></table></div></div></div>"
+    "<div ng-if=\"errors.length &gt; 0\"><p ng-bind=\"error\" ng-repeat=\"error in errors\"></p></div><div ng-if=\"errors.length == 0\"><div class=\"row listActionsPanel\" ng-if=\"showActions.listActions\"><div class=\"listActions\" ng-if=\"rowState() !== &#39;confirmation&#39;\"><span ng-repeat=\"action in listActions\"><a class=\"btn\" ng-class=\"actionCssClass(action)\" ng-click=\"doAction($event, action, row)\" ng-disabled=\"actionDisabled(action)\" ng-href=\"{{actionUrl(action)}}\" ng-show=\"actionShowed(action)\" target=\"_blank\">{{ action.title | i18n }}</a>&nbsp;</span></div><div class=\"action-confirmation-block\" ng-if=\"rowState() == &#39;confirmation&#39;\"><span class=\"question\" ng-bind=\"rowConfirmation().text\"></span><a class=\"btn btn-danger btn-xs\" ng-click=\"doAction($event, rowAction(), null, true)\" ng-href=\"{{actionUrl(rowAction())}}\" target=\"_blank\">{{ rowConfirmation().yesText || 'sure' | i18n }}</a>&nbsp;<button class=\"btn btn-default btn-md\" ng-click=\"cancel()\">{{ rowConfirmation().noText || 'cancel' | i18n }}</button></div></div><div class=\"row new-item-block\" ng-include=\"newRowTpl()\"></div><br><div class=\"row items-list\"><div class=\"table-responsive\"><table class=\"table table-striped\"><thead><tr><th ng-if=\"multiSelect.enabled\"><input ng-click=\"multiSelectToggleAll()\" ng-model=\"multiSelect.checkedAll\" type=\"checkbox\"></th><th ng-class=\"{&#39;clickable&#39;: !column.notSortable}\" ng-click=\"dataSource.sortBy(column.fieldId)\" ng-repeat=\"column in columns\" width=\"{{column.width || &#39;*&#39;}}\"><span class=\"icon\" ng-class=\"{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}\" ng-if=\"!column.notSortable\"></span><span ng-bind=\"column.title | i18n : column.prefix\"></span></th><th ng-show=\"showActions\">{{'actions' | i18n}}</th></tr></thead><tbody><tr ng-include=\"rowTpl(row)\" ng-repeat=\"row in dataSource.filteredRows()\"></tr></tbody></table></div></div></div>"
   );
 
 
@@ -583,7 +662,7 @@ angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($t
 
 
   $templateCache.put('crud-list/row.html',
-    "<td ng-include=\"cellTpl(column)\" ng-repeat=\"column in columns\"></td><td class=\"actions\" ng-if=\"showActions.rowActions\"><div class=\"action-block\" ng-show=\"rowState(row) !== &#39;confirmation&#39;\"><span ng-repeat=\"action in rowActions\"><a class=\"btn\" ng-class=\"actionCssClass(action)\" ng-click=\"doAction($event, action, row)\" ng-href=\"{{actionUrl(action, row)}}\" target=\"_blank\">{{ action.title | i18n }}</a>&nbsp;</span></div><div class=\"action-confirmation-block\" ng-if=\"rowState(row) == &#39;confirmation&#39;\"><span class=\"question\" ng-bind=\"rowConfirmation(row).text\"></span><a class=\"btn btn-danger btn-xs\" ng-click=\"doAction($event, rowAction(row), row, true)\" ng-href=\"{{actionUrl(rowAction(row), row)}}\" target=\"_blank\">{{ rowConfirmation(row).yesText || 'sure' | i18n }}</a>&nbsp;<button class=\"btn btn-default btn-md\" ng-click=\"cancel(row)\">{{ rowConfirmation(row).noText || 'cancel' | i18n }}</button></div></td>"
+    "<td ng-if=\"multiSelect.enabled\"><input ng-click=\"checkAllRowsSelected()\" ng-model=\"multiSelect.selectedRows[rowId(row)]\" type=\"checkbox\"></td><td ng-include=\"cellTpl(column)\" ng-repeat=\"column in columns\"></td><td class=\"actions\" ng-if=\"showActions.rowActions\"><div class=\"action-block\" ng-show=\"rowState(row) !== &#39;confirmation&#39;\"><span ng-repeat=\"action in rowActions\"><a class=\"btn\" ng-class=\"actionCssClass(action)\" ng-click=\"doAction($event, action, row)\" ng-disabled=\"actionDisabled(action, row)\" ng-href=\"{{actionUrl(action, row)}}\" ng-show=\"actionShowed(action, row)\" target=\"_blank\">{{ action.title | i18n }}</a>&nbsp;</span></div><div class=\"action-confirmation-block\" ng-if=\"rowState(row) == &#39;confirmation&#39;\"><span class=\"question\" ng-bind=\"rowConfirmation(row).text\"></span><a class=\"btn btn-danger btn-xs\" ng-click=\"doAction($event, rowAction(row), row, true)\" ng-href=\"{{actionUrl(rowAction(row), row)}}\" target=\"_blank\">{{ rowConfirmation(row).yesText || 'sure' | i18n }}</a>&nbsp;<button class=\"btn btn-default btn-md\" ng-click=\"cancel(row)\">{{ rowConfirmation(row).noText || 'cancel' | i18n }}</button></div></td>"
   );
 
 }]);

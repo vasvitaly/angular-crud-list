@@ -14,14 +14,67 @@ var vvvCrudListController = function($scope) {
     edit: 'btn-info btn-md'
   };
   $scope.errors = [];
+  
   $scope.showActions = {};
   $scope.columns = $scope.options.columns;
   $scope.modelName = $scope.options.modelName;
   $scope.rowStates = {};
   $scope.idField = $scope.options.idField || 'id';
+  
+  $scope.multiSelect = {
+    checkedAll: false,
+    selectedRows: {},
+    enabled: $scope.options.multiSelectEnabled || false
+  };
+
+  $scope.toggleMultiSelect = function() {
+    if ($scope.multiSelect.enabled) {
+      $scope.disableMultiSelect();
+    } else {
+      $scope.enableMultiSelect();
+    }
+  };
+
+  $scope.enableMultiSelect = function() {
+    $scope.multiSelect.enabled = true;
+  };
+
+  $scope.disableMultiSelect = function() {
+    $scope.multiSelect.enabled = false;
+    $scope.multiSelect.selectedRows = {};
+    $scope.multiSelect.checkedAll = false;
+  };
+
+  $scope.multiSelectToggleAll = function() {
+    if ($scope.multiSelect.checkedAll) {
+      var rowIds = ($scope.dataSource.filteredRows() || []).map($scope.rowId);
+      var i;
+      for (i in rowIds) {
+        $scope.multiSelect.selectedRows[rowIds[i]] = true;
+      }
+    } else {
+      $scope.multiSelect.selectedRows = {};
+    }
+  };
+
+  $scope.checkAllRowsSelected = function() {
+    $scope.multiSelect.checkedAll = $scope.dataSource.filteredRows().length == $scope.getSelectedRowIds().length;
+    return $scope.multiSelect.checkedAll;
+  };
+
+  $scope.getSelectedRowIds = function() {
+    var id;
+    var selectedIds = [];
+    for (id in $scope.multiSelect.selectedRows) {
+      if ($scope.multiSelect.selectedRows[id]) {
+        selectedIds.push(id);
+      }
+    }
+    return selectedIds;
+  };
 
   $scope.rowTpl = function(row) {
-    if ($scope.rowStates[rowId(row)] && $scope.rowStates[rowId(row)][0] === 'edit') {
+    if ($scope.rowStates[$scope.rowId(row)] && $scope.rowStates[$scope.rowId(row)][0] === 'edit') {
       return 'crud-list/edit_row.html';
     } else {
       return 'crud-list/row.html';
@@ -57,7 +110,7 @@ var vvvCrudListController = function($scope) {
   };
   
   $scope.cancel = function(row) {
-    $scope.rowStates[rowId(row)] = null;
+    $scope.rowStates[$scope.rowId(row)] = null;
   };
 
   $scope.save = function(row, oForm) {
@@ -69,7 +122,7 @@ var vvvCrudListController = function($scope) {
   };
 
   $scope.remove = function(row) {
-    var rid = rowId(row);
+    var rid = $scope.rowId(row);
     $scope.dataSource.remove(rid);
     $scope.rowStates[rid] = null;
     return row;
@@ -87,9 +140,12 @@ var vvvCrudListController = function($scope) {
   };
 
   $scope.doAction = function(event, action, row, confirmed) {
+    if ($scope.actionDisabled(action,row)) {
+      return false;
+    }
     if (event && event.stopImmediatePropagation) event.stopImmediatePropagation();
     if (action.confirmation && !confirmed) {
-      $scope.rowStates[rowId(row)] = ['confirmation', action];
+      $scope.rowStates[$scope.rowId(row)] = ['confirmation', action];
       event.preventDefault();
       return false;
     }
@@ -97,10 +153,10 @@ var vvvCrudListController = function($scope) {
     row = callAction(action, row);
 
     if (action.templateUrl) {
-      $scope.rowStates[rowId(row)] = ['edit', action];
+      $scope.rowStates[$scope.rowId(row)] = ['edit', action];
       preventDefault(event);
     } else {
-      $scope.rowStates[rowId(row)] = null;
+      $scope.rowStates[$scope.rowId(row)] = null;
     }
     if (!action.url || action.url === '') {
       preventDefault(event);
@@ -112,16 +168,30 @@ var vvvCrudListController = function($scope) {
     return action.cssClass || actionCssClasses[action.name] || '';
   };
 
+  $scope.actionShowed = function(action, row) {
+    if (action.showedWhen) {
+      return action.showedWhen(row, $scope);
+    }
+    return true;
+  };
+
+  $scope.actionDisabled = function(action, row) {
+    if (action.activeWhen) {
+      return !action.activeWhen(row, $scope);
+    }
+    return false;
+  };
+
   $scope.rowState = function(row){
-    if ($scope.rowStates[rowId(row)]) {
-      return $scope.rowStates[rowId(row)][0] || '';
+    if ($scope.rowStates[$scope.rowId(row)]) {
+      return $scope.rowStates[$scope.rowId(row)][0] || '';
     }
     return '';
   };
 
   $scope.rowAction = function(row){
-    if ($scope.rowStates[rowId(row)] && $scope.rowStates[rowId(row)][1]) {
-      return $scope.rowStates[rowId(row)][1];
+    if ($scope.rowStates[$scope.rowId(row)] && $scope.rowStates[$scope.rowId(row)][1]) {
+      return $scope.rowStates[$scope.rowId(row)][1];
     }
     return {};
   };
@@ -130,7 +200,8 @@ var vvvCrudListController = function($scope) {
     return $scope.rowAction(row).confirmation || {};
   };
 
-  var rowId = function(row){
+
+  $scope.rowId = function(row){
     return row && row[$scope.idField] ? row[$scope.idField] : 'new';
   };
 
@@ -143,13 +214,13 @@ var vvvCrudListController = function($scope) {
   var callAction = function(action, row) {
     var results;
     if (action.before && angular.isFunction(action.before)) {
-      action.before(row);
+      action.before(row, $scope);
     }
     if (action.action && angular.isFunction(action.action)) {
-      results = action.action(row);
+      results = action.action(row, $scope);
     }
     if (action.after && angular.isFunction(action.after)) {
-      action.after(row || results);
+      action.after(row || results, $scope);
     }
     return (row || results);
   };
@@ -189,6 +260,14 @@ var vvvCrudListController = function($scope) {
     
     if (!action.title || action.title === '') {
       action.title = action.name;
+    }
+    if (action.showedWhen && !angular.isFunction(action.showedWhen)) {
+      action.showedWhen = null;
+      $scope.errors.push('Action "' + action.name + '".showedWhen should be a function.');
+    }
+    if (action.activeWhen && !angular.isFunction(action.activeWhen)) {
+      action.activeWhen = null;
+      $scope.errors.push('Action "' + action.name + '".activeWhen should be a function.');
     }
     if (action.action && allowedActions.indexOf(action.action) !== -1 ) {
       action.action = $scope[action.action];
@@ -245,7 +324,7 @@ var vvvCrudListController = function($scope) {
   };
 
   var onSuccessSave = function(row) {
-    $scope.rowStates[rowId(row)] = null;
+    $scope.rowStates[$scope.rowId(row)] = null;
     if ($scope.row && $scope.row.id == row.id) {
       $scope.row = null;
     }

@@ -5,7 +5,7 @@ div ng-if="errors.length == 0"
   .row.listActionsPanel ng-if="showActions.listActions"
     div.listActions ng-if="rowState() !== 'confirmation'"
       span ng-repeat="action in listActions" 
-        a.btn ng-href="{{actionUrl(action)}}" target="_blank" ng-click="doAction($event, action, row)" ng-class="actionCssClass(action)"
+        a.btn ng-href="{{actionUrl(action)}}" target="_blank" ng-click="doAction($event, action, row)" ng-class="actionCssClass(action)" ng-show="actionShowed(action)" ng-disabled="actionDisabled(action)"
           | {{ action.title | i18n }}
         | &nbsp;
     div.action-confirmation-block ng-if="rowState() == 'confirmation'"
@@ -24,6 +24,8 @@ div ng-if="errors.length == 0"
       table.table.table-striped
         thead
           tr
+            th ng-if="multiSelect.enabled"
+              input type="checkbox" ng-model="multiSelect.checkedAll" ng-click="multiSelectToggleAll()"
             th ng-repeat="column in columns" ng-click="dataSource.sortBy(column.fieldId)" width="{{column.width || '*'}}" ng-class="{'clickable': !column.notSortable}"
               span.icon ng-if="!column.notSortable" ng-class="{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}"
               span ng-bind="column.title | i18n : column.prefix"
