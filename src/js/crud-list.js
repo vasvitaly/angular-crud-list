@@ -21,11 +21,13 @@ var vvvCrudListController = function($scope) {
   $scope.rowStates = {};
   $scope.idField = $scope.options.idField || 'id';
   
+  // Default options for multiSelect feature
   $scope.multiSelect = {
     checkedAll: false,
     selectedRows: {},
-    enabled: $scope.options.multiSelectEnabled || false
+    enabled: false
   };
+  
 
   $scope.toggleMultiSelect = function() {
     if ($scope.multiSelect.enabled) {
@@ -43,6 +45,7 @@ var vvvCrudListController = function($scope) {
     $scope.multiSelect.enabled = false;
     $scope.multiSelect.selectedRows = {};
     $scope.multiSelect.checkedAll = false;
+    multiSelectOnChange();
   };
 
   $scope.multiSelectToggleAll = function() {
@@ -55,10 +58,12 @@ var vvvCrudListController = function($scope) {
     } else {
       $scope.multiSelect.selectedRows = {};
     }
+    multiSelectOnChange();
   };
 
   $scope.checkAllRowsSelected = function() {
     $scope.multiSelect.checkedAll = $scope.dataSource.filteredRows().length == $scope.getSelectedRowIds().length;
+    multiSelectOnChange();
     return $scope.multiSelect.checkedAll;
   };
 
@@ -344,9 +349,27 @@ var vvvCrudListController = function($scope) {
     }
   };
 
+  var checkMultiSelectOptions = function() {
+    if (!$scope.options.multiSelect) {
+      $scope.options.multiSelect = {};
+    }
+    angular.merge($scope.multiSelect, $scope.options.multiSelect);
+    if ($scope.multiSelect.onChange && !angular.isFunction($scope.multiSelect.onChange)) {
+      $scope.errors.push('multiSelect.onChange should be a function.');
+      $scope.multiSelect.onChange = null;
+    }
+  };
+
+  var multiSelectOnChange = function(){
+    if ($scope.multiSelect.onChange) {
+      $scope.multiSelect.onChange($scope);
+    }
+  };
+
   checkColumns();
   checkRowActions();
   checkListActions();
+  checkMultiSelectOptions();
 
   return true;
 };

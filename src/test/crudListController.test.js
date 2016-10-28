@@ -814,16 +814,31 @@ describe('vvvCrudListController', function(){
 
   describe('multiselect', function() {
     beforeEach(function(){
-      scope.options.multiSelectEnabled = true;
+      scope.options.multiSelect = {
+        enabled: true,
+      }
       createSut();
     });
 
-    it('options.multiSelectEnabled enables multiselect on start', function(){
+    it('options.multiSelect.enabled enables multiselect on start', function(){
       expect(scope.multiSelect.enabled).toEqual(true);
     });
 
+    it('options.multiSelect.onChange callback should be a function', function(){
+      scope.options.multiSelect.onChange = 'not a function';
+      createSut();
+      expect(scope.multiSelect.onChange).toEqual(null);
+      expect(scope.errors[0]).toEqual('multiSelect.onChange should be a function.');
+    });
+
+    it('should pass options.multiSelect.onChange callback', function(){
+      scope.options.multiSelect.onChange = function(){};
+      createSut();
+      expect(scope.multiSelect.onChange).toEqual(scope.options.multiSelect.onChange);
+    });
+
     it('multiselect disabled by default', function(){
-      scope.options.multiSelectEnabled = null;
+      scope.options.multiSelect = {};
       createSut();
       expect(scope.multiSelect.enabled).toEqual(false);
     });
@@ -873,6 +888,14 @@ describe('vvvCrudListController', function(){
         scope.multiSelectToggleAll();
         expect(scope.multiSelect.selectedRows).toEqual({});
       });
+
+      it('calls onChange callback with scope as arg', function(){
+        var onchange = jasmine.createSpy('onchange');
+        scope.options.multiSelect.onChange = onchange;
+        createSut();
+        scope.multiSelectToggleAll();
+        expect(onchange).toHaveBeenCalledWith(scope);
+      });
     });
 
     describe('checkAllRowsSelected', function(){
@@ -895,6 +918,14 @@ describe('vvvCrudListController', function(){
         scope.multiSelect.checkedAll = true;
         scope.checkAllRowsSelected();
         expect(scope.multiSelect.checkedAll).toEqual(false);
+      });
+      
+      it('calls onChange callback with scope as arg', function(){
+        var onchange = jasmine.createSpy('onchange');
+        scope.options.multiSelect.onChange = onchange;
+        createSut();
+        scope.checkAllRowsSelected();
+        expect(onchange).toHaveBeenCalledWith(scope);
       });
     }); 
 

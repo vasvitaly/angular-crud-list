@@ -18,6 +18,10 @@
       <vvv-crud-list data-options="listOptions" data-source="ds"></vvv-crud-list>
       <vvv-pagination data-source="ds" data-options="{maxPages: 20, showInfo: true}"></vvv-crud-list>
     </div>
+    <div class="col-lg-10" ng-show="selectedRows && selectedRows.length > 0"> 
+      <h3>Selected rows</h3>
+      <div>{{selectedRows}}</div>
+    </div>
   </div>
   
 </div>
