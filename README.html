@@ -192,71 +192,155 @@ designed to work with <a href="https://github.com/vasvitaly/angular-data-source"
 </ol>
 <pre><code class="lang-javascript">angular.module(&#39;myApp&#39;, [&#39;vasvitaly.angular-crud-list&#39;]);
 </code></pre>
+<p>or </p>
+<pre><code class="lang-javascript">angular.module(&#39;myApp&#39;, [
+  &#39;vasvitaly.angular-crud-list&#39;, 
+  &#39;vasvitaly.angular-pagination&#39;
+]);
+</code></pre>
+<p>to also have pagination.</p>
 <h3 id="in-a-controller">In a controller</h3>
-<pre><code class="lang-javascript">
-controllers.controller(&quot;ItemsController&quot;, 
-[&#39;$scope&#39;, &#39;vvvDataSource&#39;, &#39;Item&#39;, function($scope, DataSource, Item) {
-  var dsOptions = {};
-  var uc = $scope;
-  $scope.uc = uc;
+<p>You should have vvvDataSource or similar to provide data for the list.</p>
+<pre><code class="lang-javascript">angular.module(&#39;myApp&#39;).factory(&quot;Phone&quot;, [&quot;$resource&quot;, function($resource) {
+  return $resource(&#39;/examples/phones/:id.:format&#39;, { id: &quot;@id&quot;, format: &#39;json&#39; });
+}
+])
+.controller(&#39;HomeCtrl&#39;, [&#39;$scope&#39;, &#39;Phone&#39;, &#39;vvvDataSource&#39;, 
+  function($scope, Phone, DataSource) {
 
-  $scope.dataSource = new DataSource(Item, dsOptions);
-  $scope.dataSource.query();
+  var options = {
+    newItemDefaults: {
+      name: &#39;new phone&#39;, 
+      age: 1, 
+      imageUrl: &#39;http://images.google.com/1&#39;, 
+      snippet: &#39;Some description here&#39;
+    },
+    filter: {name: &#39;Moto&#39;},
+    sorting: {fieldId: &#39;age&#39;, desc: true},
+    clearFilter: {name: &#39;&#39;},
+    perPage: 5,
+    page: 1
+  };
 
+  $scope.ds = new DataSource(Phone, options);
+  $scope.ds.query();
+  $scope.filter = $scope.ds.filter;
+</code></pre>
+<pre><code class="lang-javascript">  # place for putting rows, selected by multiselect feature.
+  $scope.selectedRows = [];
+
+  # setting up list options
   $scope.listOptions = {
+    # columns - list of columns you have list to show in.
+
     columns: [
       { 
-        fieldId: &#39;id&#39;, 
-        title: &#39;id&#39;,
-        url: &#39;/phones/:id&#39;,
-        width: &#39;130&#39;
+        fieldId: &#39;id&#39;, # propery name in the data-object
+        title: &#39;id&#39;, # title for the list header
+        url: &#39;/phones/:id&#39;, # url template to make showed data link
+        width: &#39;130&#39; # when you need column to have fixed width (in px)
       },
       { 
-        fieldId: &#39;name&#39;, 
-        title: &#39;name&#39;
+        fieldId: &#39;imageUrl&#39;,
+        title: &#39;image&#39;,
+        # custom template to render cell
+        templateUrl: &#39;/examples/pages/home/phoneImage.html&#39;, 
+        width: &#39;100&#39;, 
+        # disable sorting feature for this field
+        notSortable: true 
+      },
+      { 
+        fieldId: &#39;name&#39;,
+        title: &#39;name&#39;,
+        width: &#39;300&#39;
+      },
+      { 
+        fieldId: &#39;age&#39;,
+        title: &#39;Phone Age&#39;,
+        width: &#39;70&#39;
+      },
+      { 
+        fieldId: &#39;snippet&#39;,
+        title: &#39;description&#39;
       }
     ],
-    listActions = {
-      add: {
-        title: &#39;add&#39;,
-        url: &#39;/items/add&#39;,
-        templateUrl: &#39;yourAppFolder/addItem.html&#39;,
-        action: function(){},
-        confirmation: {
-          text: &#39;Do you really want to add?&#39;,
-          yesText: &#39;Sure&#39;,
-          noText: &#39;No&#39;
-        },
-        cssClass: &#39;btn-info btn-md&#39;
+
+    # used to build right label translation path for i18n
+    modelName: &#39;phone&#39;, 
+
+    # actions for the whole list, showed in the panel above the list
+    listActions: { 
+      new: {
+        # action template
+        templateUrl: &#39;/examples/pages/home/editPhoneForm.html&#39; 
       },
-      customAction: {
-        title: &#39;Detailed List&#39;,
-        url: &#39;/items/detailed&#39;,
-        cssClass: &#39;btn-detailed btn-md&#39;
-      }
-    },
-    rowActions = {
-      remove: {
-        confirmation: {
-          yesText: &#39;Remove completely&#39;,
-          noText: &#39;No&#39;
+      newDefaults: {
+        # action name, when not present, got from action key
+        action: &#39;new&#39;, 
+        # action button title
+        title: &#39;Rich new&#39;, 
+        templateUrl: &#39;/examples/pages/home/phoneFormRich.html&#39;,
+        # action button css classes
+        cssClass: &#39;btn-info&#39;, 
+        # when you need confirmation for action 
+        confirmation: { 
+          yesText: &#39;Really do rich?&#39;,
+          noText: &#39;Oh no!&#39;
         }
       },
-      edit: {
-        templateUrl: &#39;yourAppFolder/editItem.html&#39;
+      detailed: {
+        title: &#39;Detailed List&#39;,
+        # action acting as a link
+        url: &#39;/phones&#39;, 
+        cssClass: &#39;btn-success&#39;,
+        confirmation: {
+          text: &#39;Do you really want a lot of data? It could be slooowly....&#39;,
+          yesText: &#39;Yeah really, man.&#39;,
+          noText: &#39;No! I need it right now!&#39;
+        }
       },
-      details: {
-        title: &#39;more info&#39;,
-        url: &#39;/items/:id&#39;
+      toggleMultiSelect: {
+        title: &#39;Toggle Multiselect&#39;,
+        action: function(row, scope) { # action method
+          scope.toggleMultiSelect();
+        },
+        cssClass: &#39;btn-info&#39;
       }
     },
-    modelName: &#39;phone&#39;
+    # actions, showed in action cell of each row
+    rowActions: { 
+      edit: {
+        templateUrl: &#39;/examples/pages/home/editPhoneForm.html&#39;,
+        # condition for showing action button
+        showedWhen: function(row){return row.age &lt;= 10;} 
+      },
+      remove: {
+        # condition for action button to be enabled
+        activeWhen: function(row){return row.age &gt; 10;} 
+      },
+      details: {
+        title: &#39;details&#39;,
+        url: &#39;/phones/:id/details&#39;,
+        cssClass: &#39;btn-success btn-md&#39;
+      }
+    },
+    # options for the multiselect feature
+    multiSelect: { 
+      # is enabled by default, you can enable in in runtime
+      enabled: false, 
+      # onChange event callback 
+      onChange: function(scope){ 
+        $scope.selectedRows = scope.getSelectedRowIds();
+      }
+    }
   };
-}]);
 </code></pre>
 <h3 id="in-the-template">In the template</h3>
-<pre><code class="lang-html">&lt;vvv-crud-list data-options=&quot;listOptions&quot; data-source=&quot;dataSource&quot;&gt;&lt;/vvv-crud-list&gt;
+<pre><code class="lang-html">&lt;vvv-crud-list data-options=&quot;listOptions&quot; data-source=&quot;ds&quot;&gt;&lt;/vvv-crud-list&gt;
+&lt;vvv-pagination data-source=&quot;ds&quot; data-options=&quot;{maxPages: 20, showInfo: true}&quot;&gt;
+&lt;/vvv-crud-list&gt;
 </code></pre>
+<p>vvv-pagination - for the pagination.</p>
 <h2 id="api">API</h2>
 <h3 id="available-directive-options-">Available directive options:</h3>
 <ul>
@@ -269,14 +353,14 @@ controllers.controller(&quot;ItemsController&quot;,
 <li><em>listActions</em> - object describing list actions, e.g. &#39;new&#39;, &#39;go to other list&#39;, &#39;mark all&#39;.</li>
 <li><em>rowActions</em> - object, describing row actions, e.g. &#39;edit&#39;, &#39;remove&#39;, &#39;more info&#39;.</li>
 <li><em>modelName</em> - string with object name as it is in translation file. </li>
+<li><em>multiSelect</em> - object with multiselect feature options</li>
 </ul>
 <h3 id="column-description-object">Column description object</h3>
 <ul>
 <li><strong>fieldId</strong> - string, key to get data from row in dataSource. E.g. fieldId=&#39;name&#39;, data will be retrieved from dataSource.rows[i][&#39;name&#39;]. </li>
 <li><strong>title</strong> - string, column title, will be translated using i18n. 
 Translation schema: modelName.column.title | i18n : column.titlePrefix</li>
-<li><strong>url</strong> - string, url template, when present will transform column value into link, populating placeholders,
-looking :propertyName with row&#39;s property value. </li>
+<li><strong>url</strong> - string, url template, when present will transform column value into link, populating placeholders, looking :propertyName with row&#39;s property value. </li>
 <li><strong>width</strong> - string or number, sets fixed width for the column using <code>width</code> property of the <code>th</code> tag </li>
 <li><strong>notSortable</strong> - boolean or number (0|1), when true disables sorting feature on the column.</li>
 <li><strong>templateUrl</strong> - string, url of the custom template for the column cell. Could be used to show images or complex html code in the cell.</li>
@@ -288,13 +372,15 @@ looking :propertyName with row&#39;s property value. </li>
     title: &#39;add&#39;,
     url: &#39;/items/add&#39;,
     templateUrl: &#39;yourAppFolder/addItem.html&#39;,
-    action: function(){},
+    action: function(row, scope){},
     confirmation: {
       text: &#39;Do you really want to add?&#39;,
       yesText: &#39;Sure&#39;,
       noText: &#39;No&#39;
     },
     cssClass: &#39;btn-info btn-md&#39;
+    showedWhen: function(row) {},
+    activeWhen: function(row) {}
   }
 }
 </code></pre>
@@ -305,7 +391,7 @@ looking :propertyName with row&#39;s property value. </li>
 <li><strong>url</strong> - Url template to make local or global link. Local link should start from <code>/</code>. 
 placeholders looks like :propertyName. :string will be treaten as placeholder only when row has appropriate property.  </li>
 <li><strong>templateUrl</strong> - template url for inline actioning row. Good for inline edit form.</li>
-<li><strong>action</strong> - action function. When present will be called as action.
+<li><strong>action</strong> - action function. When present will be called as action. Takes two args: row, scope. For list actions row is null. Scope is directive&#39;s scope. You can access your controller scope as usual $scope.
 Directive has predefined action &#39;remove&#39;. </li>
 <li><p><strong>confirmation</strong> - hash, to set up action&#39;s inline confirmation. Remove action has default confirmation.</p>
 <pre><code class="lang-javascript">confirmation: {
@@ -325,15 +411,65 @@ Directive has predefined action &#39;remove&#39;. </li>
 <li><strong>formatter</strong> - function, if present will be called with cell value to make transformations, returned value will be showed in the cell. Could be handy for date formatting.</li>
 <li><strong>before</strong> - function, called before action with row as argument.</li>
 <li><strong>after</strong> - function, called after action with row or action call result (in case row not sent, for list actions) as argument.</li>
-</ul>
+<li><strong>showedWhen</strong> - Function to set action visible/hidden. Takes row as argument.</li>
+<li><p><strong>activeWhen</strong> - Function to set action active/diabled. Takes row as argument.</p>
 <h4 id="bundled-actions">Bundled actions</h4>
-<ul>
-<li>Actions <strong>new</strong>, <strong>edit</strong> and <strong>remove</strong> have internal support.</li>
+</li>
+<li><p>Actions <strong>new</strong>, <strong>edit</strong> and <strong>remove</strong> have internal support.</p>
+</li>
 <li>Actions have default css classes, <strong>new</strong> and <strong>remove</strong> have appropriate methods, which will be used as default in case no action or url set. </li>
 <li><strong>New</strong> and <strong>edit</strong> actions requires <code>templateUrl</code> for the edit item form.</li>
 <li>You can use <strong>save</strong> method in your form for saving item.</li>
 <li>Use <strong>cancel</strong> method to cancel creating/editing item.</li>
 </ul>
+<h4 id="multiselect-">MultiSelect:</h4>
+<p>Multiselect allows you to select several rows at once using checkboxes.</p>
+<h5 id="options">Options</h5>
+<ul>
+<li><strong>enabled</strong> - Boolean. When true, multiselect will be shown on start.</li>
+<li><strong>onChange</strong> - Callback on changing amount of selected rows. Takes directive&#39;s scope as argument.
+In the <code>scope.multiSelect.selectedRows</code> you can access selected rows ids. </li>
+</ul>
+<h4 id="handy-api-methods">Handy API methods</h4>
+<ul>
+<li><strong>scope.toggleMultiSelect</strong> - toggles multiSelect feature.</li>
+<li><strong>scope.enableMultiSelect</strong> - Enables multiSelect feature.</li>
+<li><strong>scope.disableMultiSelect</strong> - Disables multiSelect feature.</li>
+<li><strong>scope.multiSelectToggleAll</strong> - Selects/deselects all rows.</li>
+<li><strong>scope.checkAllRowsSelected</strong> - Checks whether all rows selected.</li>
+<li><strong>scope.getSelectedRowIds</strong> - Returns array of selected row ids.</li>
+</ul>
+<h3 id="pagination">Pagination</h3>
+<p>Pagination designed to work with angular-data-source and angular-crud-list.
+Current templates designed to work with bootstrap ~3.</p>
+<h2 id="usage">Usage</h2>
+<ol>
+<li>Include the <code>crud-list.js</code> script and <code>crud-list.css</code> into your app.</li>
+<li>Add <code>vasvitaly.angular-crud-list</code> as a module dependency to your app.</li>
+</ol>
+<pre><code class="lang-javascript">angular.module(&#39;myApp&#39;, [
+  &#39;vasvitaly.angular-pagination&#39;
+]);
+</code></pre>
+<h3 id="in-the-template">In the template</h3>
+<pre><code class="lang-html">&lt;vvv-pagination data-source=&quot;ds&quot; data-options=&quot;{maxPages: 20, showInfo: true}&quot;&gt;
+&lt;/vvv-crud-list&gt;
+</code></pre>
+<h2 id="api">API</h2>
+<h3 id="available-directive-options-">Available directive options:</h3>
+<ul>
+<li><em>data-options</em> - options hash set in your controller or main directive</li>
+<li><em>data-source</em> - data providing service</li>
+</ul>
+<h4 id="data-options-options">data-options options</h4>
+<ul>
+<li><strong>maxPages</strong> - Integer. How many page links to show.</li>
+<li><strong>showInfo</strong> - Boolean. Whether to show Pagination information, 
+Rows <code>from</code> - <code>to</code> of <code>totalRows</code></li>
+<li><strong>showPreviousPage</strong> - Boolean. Whether to show Previous Page link.</li>
+<li><strong>showNextPage</strong> - Boolean. Whether to show Next Page link.</li>
+</ul>
+<p>It gets <code>totalCount</code> and <code>perPage</code> informartion from <code>data-source</code>.</p>
 <h3 id="translations">Translations</h3>
 <p>List supports translation of all the labels using <a href="https://github.com/fnando/i18n-js">i18n-js</a> translation library and additional included filter <strong>i18n</strong>.</p>
 <h4 id="i18n">i18n</h4>
