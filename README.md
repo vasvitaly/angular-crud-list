@@ -166,7 +166,10 @@ angular.module('myApp').factory("Phone", ["$resource", function($resource) {
       onChange: function(scope){ 
         $scope.selectedRows = scope.getSelectedRowIds();
       }
-    }
+    },
+    # you can inject your controller scope for using in templates inside of crud-list
+    # this option will be translated into $scope.upScope of directive.
+    scope: $scope
   };
 ```
 
@@ -191,6 +194,7 @@ vvv-pagination - for the pagination.
   * *rowActions* - object, describing row actions, e.g. 'edit', 'remove', 'more info'.
   * *modelName* - string with object name as it is in translation file. 
   * *multiSelect* - object with multiselect feature options
+  * *scope* - object, your controller scope, will be translated into $scope.upScope of directive.
 
 ### Column description object 
 

@@ -1,7 +1,7 @@
 describe('vvvCrudListController', function(){
   'use strict';
   var sut, dataSource, listOptions, filteredRows,
-      scope, injector, newRow, directive;
+      scope, injector, newRow, directive, upScope;
 
   beforeEach(module('vasvitaly.angular-crud-list'));
   
@@ -9,6 +9,7 @@ describe('vvvCrudListController', function(){
     injector = $injector;
     directive = injector.get('vvvCrudListDirective')[0];
     scope = $rootScope;
+    upScope = {parentKey: 'name'};
     scope.options = {
       columns: [{fieldId: 'id'},{fieldId: 'name'}],
       modelName: 'phone',
@@ -18,7 +19,8 @@ describe('vvvCrudListController', function(){
       },
       listActions: {
         new: { templateUrl: 'someUrl'}
-      }
+      },
+      scope: upScope
     };
     newRow = { id: null, name: 'new Item' };
     filteredRows = [
@@ -30,6 +32,11 @@ describe('vvvCrudListController', function(){
     scope.dataSource.filteredRows.and.returnValue(filteredRows);
     
   }));
+
+  it('sets upScope from options.scope', function(){
+    createSut();
+    expect(scope.upScope).toEqual(upScope);
+  });
 
   describe('checking columns', function(){
     describe('when column has no fieldId', function(){

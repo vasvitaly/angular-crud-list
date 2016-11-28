@@ -20,7 +20,8 @@ var vvvCrudListController = function($scope) {
   $scope.modelName = $scope.options.modelName;
   $scope.rowStates = {};
   $scope.idField = $scope.options.idField || 'id';
-  
+  $scope.upScope = $scope.options.scope || {};
+
   // Default options for multiSelect feature
   $scope.multiSelect = {
     checkedAll: false,

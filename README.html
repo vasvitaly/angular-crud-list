@@ -332,7 +332,10 @@ designed to work with <a href="https://github.com/vasvitaly/angular-data-source"
       onChange: function(scope){ 
         $scope.selectedRows = scope.getSelectedRowIds();
       }
-    }
+    },
+    # you can inject your controller scope for using in templates inside of crud-list
+    # this option will be translated into $scope.upScope of directive.
+    scope: $scope
   };
 </code></pre>
 <h3 id="in-the-template">In the template</h3>
@@ -354,6 +357,7 @@ designed to work with <a href="https://github.com/vasvitaly/angular-data-source"
 <li><em>rowActions</em> - object, describing row actions, e.g. &#39;edit&#39;, &#39;remove&#39;, &#39;more info&#39;.</li>
 <li><em>modelName</em> - string with object name as it is in translation file. </li>
 <li><em>multiSelect</em> - object with multiselect feature options</li>
+<li><em>scope</em> - object, your controller scope, will be translated into $scope.upScope of directive.</li>
 </ul>
 <h3 id="column-description-object">Column description object</h3>
 <ul>
