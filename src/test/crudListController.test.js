@@ -343,27 +343,20 @@ describe('vvvCrudListController', function(){
 
   });
 
-  describe('newRowTpl', function(){
+  describe('listActionTpl', function(){
 
     beforeEach(function(){
       createSut();
     });
 
-    it('returns `` when there is no new row', function(){
-      scope.row = null;
-      expect(scope.newRowTpl()).toEqual('');
+    it('returns templateUrl for the current list action', function(){
+      scope.rowStates['new'] = ['edit',{templateUrl: 'someUrl'}];
+      expect(scope.listActionTpl()).toEqual('someUrl');
     });
 
-    it('returns `` when row not in edit state ', function(){
-      scope.row = {};
+    it('returns null for the current list action', function(){
       scope.rowStates['new'] = null;
-      expect(scope.newRowTpl()).toEqual('');
-    });
-
-    it('returns add_form tpl when the new row is in `edit` state', function(){
-      scope.row = {state: 'new'};
-      scope.rowStates['new'] = ['edit',{}];
-      expect(scope.newRowTpl()).toEqual('crud-list/add_form.html');
+      expect(scope.listActionTpl()).toEqual(null);
     });
 
   });

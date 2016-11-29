@@ -15,6 +15,7 @@ var vvvCrudListController = function($scope) {
   };
   $scope.errors = [];
   
+  $scope.listActionFormTpl = 'crud-list/list_action_form.html';
   $scope.showActions = {};
   $scope.columns = $scope.options.columns;
   $scope.modelName = $scope.options.modelName;
@@ -29,6 +30,14 @@ var vvvCrudListController = function($scope) {
     enabled: false
   };
   
+
+  $scope.doShowActionButtonsPanel = function() {
+    return $scope.showActions.listActions && !$scope.listActionTpl();
+  };
+
+  $scope.listActionConfirmationInProgress = function() {
+    return $scope.rowState() == 'confirmation';
+  };
 
   $scope.toggleMultiSelect = function() {
     if ($scope.multiSelect.enabled) {
@@ -106,8 +115,8 @@ var vvvCrudListController = function($scope) {
     }
   };
 
-  $scope.newRowTpl = function() {
-    return $scope.row && $scope.rowStates['new'] && $scope.rowStates['new'][0] === 'edit' ? 'crud-list/add_form.html' : '';
+  $scope.listActionTpl = function() {
+    return $scope.rowAction().templateUrl || null;
   };
 
   $scope.new = function() {
@@ -675,8 +684,13 @@ angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($t
   );
 
 
+  $templateCache.put('crud-list/list_action_form.html',
+    "<h2 class=\"sub-header\">{{ rowAction().title | i18n }}</h2><div class=\"row\"><div class=\"col-md-12\" ng-include=\"rowAction().templateUrl\"></div></div>"
+  );
+
+
   $templateCache.put('crud-list/main.html',
-    "<div ng-if=\"errors.length &gt; 0\"><p ng-bind=\"error\" ng-repeat=\"error in errors\"></p></div><div ng-if=\"errors.length == 0\"><div class=\"row listActionsPanel\" ng-if=\"showActions.listActions\"><div class=\"listActions\" ng-if=\"rowState() !== &#39;confirmation&#39;\"><span ng-repeat=\"action in listActions\"><a class=\"btn\" ng-class=\"actionCssClass(action)\" ng-click=\"doAction($event, action, row)\" ng-disabled=\"actionDisabled(action)\" ng-href=\"{{actionUrl(action)}}\" ng-show=\"actionShowed(action)\" target=\"_blank\">{{ action.title | i18n }}</a>&nbsp;</span></div><div class=\"action-confirmation-block\" ng-if=\"rowState() == &#39;confirmation&#39;\"><span class=\"question\" ng-bind=\"rowConfirmation().text\"></span><a class=\"btn btn-danger btn-xs\" ng-click=\"doAction($event, rowAction(), null, true)\" ng-href=\"{{actionUrl(rowAction())}}\" target=\"_blank\">{{ rowConfirmation().yesText || 'sure' | i18n }}</a>&nbsp;<button class=\"btn btn-default btn-md\" ng-click=\"cancel()\">{{ rowConfirmation().noText || 'cancel' | i18n }}</button></div></div><div class=\"row new-item-block\" ng-include=\"newRowTpl()\"></div><br><div class=\"row items-list\"><div class=\"table-responsive\"><table class=\"table table-striped\"><thead><tr><th ng-if=\"multiSelect.enabled\"><input ng-click=\"multiSelectToggleAll()\" ng-model=\"multiSelect.checkedAll\" type=\"checkbox\"></th><th ng-class=\"{&#39;clickable&#39;: !column.notSortable}\" ng-click=\"dataSource.sortBy(column.fieldId)\" ng-repeat=\"column in columns\" width=\"{{column.width || &#39;*&#39;}}\"><span class=\"icon\" ng-class=\"{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}\" ng-if=\"!column.notSortable\"></span><span ng-bind=\"column.title | i18n : column.prefix\"></span></th><th ng-show=\"showActions\">{{'actions' | i18n}}</th></tr></thead><tbody><tr ng-include=\"rowTpl(row)\" ng-repeat=\"row in dataSource.filteredRows()\"></tr></tbody></table></div></div></div>"
+    "<div ng-if=\"errors.length &gt; 0\"><p ng-bind=\"error\" ng-repeat=\"error in errors\"></p></div><div ng-if=\"errors.length == 0\"><div class=\"row list-actions-panel\" ng-show=\"doShowActionButtonsPanel()\"><div class=\"list-actions\" ng-hide=\"listActionConfirmationInProgress()\"><span ng-repeat=\"action in listActions\"><a class=\"btn\" ng-class=\"actionCssClass(action)\" ng-click=\"doAction($event, action, row)\" ng-disabled=\"actionDisabled(action)\" ng-href=\"{{actionUrl(action)}}\" ng-show=\"actionShowed(action)\" target=\"_blank\">{{ action.title | i18n }}</a>&nbsp;</span></div><div class=\"action-confirmation-block\" ng-show=\"listActionConfirmationInProgress()\"><span class=\"question\" ng-bind=\"rowConfirmation().text\"></span><a class=\"btn btn-danger btn-xs\" ng-click=\"doAction($event, rowAction(), null, true)\" ng-href=\"{{actionUrl(rowAction())}}\" target=\"_blank\">{{ rowConfirmation().yesText || 'sure' | i18n }}</a>&nbsp;<button class=\"btn btn-default btn-md\" ng-click=\"cancel()\">{{ rowConfirmation().noText || 'cancel' | i18n }}</button></div></div><div class=\"row list-action-form\" ng-if=\"listActionTpl()\" ng-include=\"listActionFormTpl\"></div><br><div class=\"row items-list\"><div class=\"table-responsive\"><table class=\"table table-striped\"><thead><tr><th ng-if=\"multiSelect.enabled\"><input ng-click=\"multiSelectToggleAll()\" ng-model=\"multiSelect.checkedAll\" type=\"checkbox\"></th><th ng-class=\"{&#39;clickable&#39;: !column.notSortable}\" ng-click=\"dataSource.sortBy(column.fieldId)\" ng-repeat=\"column in columns\" width=\"{{column.width || &#39;*&#39;}}\"><span class=\"icon\" ng-class=\"{ordered: dataSource.isOrderedByField(column.fieldId), reverse: dataSource.sortingInfo().desc}\" ng-if=\"!column.notSortable\"></span><span ng-bind=\"column.title | i18n : column.prefix\"></span></th><th ng-show=\"showActions\">{{'actions' | i18n}}</th></tr></thead><tbody><tr ng-include=\"rowTpl(row)\" ng-repeat=\"row in dataSource.filteredRows()\"></tr></tbody></table></div></div></div>"
   );
 
 

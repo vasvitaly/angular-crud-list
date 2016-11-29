@@ -15,6 +15,7 @@ var vvvCrudListController = function($scope) {
   };
   $scope.errors = [];
   
+  $scope.listActionFormTpl = 'crud-list/list_action_form.html';
   $scope.showActions = {};
   $scope.columns = $scope.options.columns;
   $scope.modelName = $scope.options.modelName;
@@ -29,6 +30,14 @@ var vvvCrudListController = function($scope) {
     enabled: false
   };
   
+
+  $scope.doShowActionButtonsPanel = function() {
+    return $scope.showActions.listActions && !$scope.listActionTpl();
+  };
+
+  $scope.listActionConfirmationInProgress = function() {
+    return $scope.rowState() == 'confirmation';
+  };
 
   $scope.toggleMultiSelect = function() {
     if ($scope.multiSelect.enabled) {
@@ -106,8 +115,8 @@ var vvvCrudListController = function($scope) {
     }
   };
 
-  $scope.newRowTpl = function() {
-    return $scope.row && $scope.rowStates['new'] && $scope.rowStates['new'][0] === 'edit' ? 'crud-list/add_form.html' : '';
+  $scope.listActionTpl = function() {
+    return $scope.rowAction().templateUrl || null;
   };
 
   $scope.new = function() {

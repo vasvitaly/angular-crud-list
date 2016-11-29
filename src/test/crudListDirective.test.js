@@ -129,13 +129,13 @@ describe('crud-list directive', function(){
     });
 
     it('shows new button', function(){
-      var link = elm.find('.row.listActionsPanel a.btn.btn-primary');
+      var link = elm.find('.row.list-actions-panel a.btn.btn-primary');
       expect(link.length).toEqual(1);
       expect(link.text()).toEqual('new');
     });
 
     it('shows additional list action', function(){
-      var link = elm.find('.row.listActionsPanel a.btn.detailed');
+      var link = elm.find('.row.list-actions-panel a.btn.detailed');
       expect(link.length).toEqual(1);
       expect(link.text()).toEqual('Detailed List');
       expect(link.attr('href')).toEqual('pages/phones/detailed');
@@ -145,10 +145,10 @@ describe('crud-list directive', function(){
       var panel, buttNew, newItemPanel;
       
       beforeEach(function(){
-        panel = elm.find('.row.listActionsPanel');
+        panel = elm.find('.row.list-actions-panel');
         buttNew = panel.find('a.btn.btn-primary');
         buttNew.click();
-        newItemPanel = panel.next('.row');
+        newItemPanel = elm.find('.row.list-action-form');
       });
 
       it('shows new item panel', function(){
@@ -158,7 +158,7 @@ describe('crud-list directive', function(){
       it('new item panel has header', function(){
         var newItemHeader = newItemPanel.find('h2.sub-header');
         expect(newItemHeader.length).toEqual(1);
-        expect(newItemHeader.text()).toEqual('add_new.phone');
+        expect(newItemHeader.text()).toEqual('new');
       });
 
       it('new item panel has phone form ', function(){
@@ -233,15 +233,14 @@ describe('crud-list directive', function(){
       var panel, buttNew, newItemPanel, confirmationBlock;
       
       beforeEach(function(){
-        panel = elm.find('.row.listActionsPanel');
-        buttNew = panel.find('.listActions a.new-with-confirmation');
+        panel = elm.find('.row.list-actions-panel');
+        buttNew = panel.find('.list-actions a.new-with-confirmation');
         buttNew.click();
-        confirmationBlock = panel.find('.action-confirmation-block');
       });
 
       it('hides action buttons', function(){
-        var actionButtons = panel.find('.listActions a');
-        expect(actionButtons.length).toEqual(0);
+        var actionButtons = panel.find('.list-actions');
+        expect(actionButtons.hasClass('ng-hide')).toEqual(true);
       });
       
       describe('confirmation block', function(){
@@ -250,10 +249,11 @@ describe('crud-list directive', function(){
         beforeEach(function(){
           confirmedAction = scope.listOptions.listActions.newWithConfirmation;
           confirmationObj = confirmedAction.confirmation;
+          confirmationBlock = panel.find('.action-confirmation-block');
         });
 
         it('showed', function(){
-          expect(confirmationBlock.length).toEqual(1);
+          expect(confirmationBlock.hasClass('ng-hide')).toEqual(false);
         });
 
         it('has question text', function(){
@@ -287,13 +287,14 @@ describe('crud-list directive', function(){
           it('clicked hides confirmation block', function(){
             button.click();
             confirmationBlock = panel.find('.action-confirmation-block');
-            expect(confirmationBlock.length).toBe(0);
+            expect(confirmationBlock.hasClass('ng-hide')).toBe(true);
           });
 
           it('clicked shows action buttons', function(){
+            var buttons = panel.find('.list-actions');
+            expect(buttons.hasClass('ng-hide')).toBeTruthy();
             button.click();
-            var buttons = panel.find('.listActions');
-            expect(buttons.length).toBe(1);
+            expect(buttons.hasClass('ng-hide')).toBeFalsy();
           });
 
 
@@ -306,20 +307,20 @@ describe('crud-list directive', function(){
             button = confirmationBlock.find('button.btn.btn-default');
           });
 
-          it('has no button', function(){
+          it('has button `no`', function(){
             expect(button.text()).toEqual(confirmationObj.noText);
           });
 
           it('clicked hides confirmation block', function(){
             button.click();
             confirmationBlock = panel.find('.action-confirmation-block');
-            expect(confirmationBlock.length).toBe(0);
+            expect(confirmationBlock.hasClass('ng-hide')).toBeTruthy();
           });
 
           it('clicked shows action buttons', function(){
             button.click();
-            var buttons = panel.find('.listActions');
-            expect(buttons.length).toBe(1);
+            var buttons = panel.find('.list-actions');
+            expect(buttons.hasClass('ng-hide')).toBeFalsy();
           });
         
         });
