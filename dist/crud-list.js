@@ -138,7 +138,7 @@ var vvvCrudListController = function($scope) {
 
   $scope.remove = function(row) {
     var rid = $scope.rowId(row);
-    $scope.dataSource.remove(rid);
+    $scope.dataSource.remove(rid, true);
     $scope.rowStates[rid] = null;
     return row;
   };

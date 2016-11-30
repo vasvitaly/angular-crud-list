@@ -480,7 +480,7 @@ describe('vvvCrudListController', function(){
 
     it('should call dataSource.remove with row.id', function(){
       scope.remove(row);
-      expect(scope.dataSource.remove).toHaveBeenCalledWith(row.id);
+      expect(scope.dataSource.remove).toHaveBeenCalledWith(row.id, true);
     });
 
     it('should nullify state for saved row', function(){
