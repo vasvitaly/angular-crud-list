@@ -268,6 +268,10 @@ designed to work with <a href="https://github.com/vasvitaly/angular-data-source"
     # used to build right label translation path for i18n
     modelName: &#39;phone&#39;, 
 
+    # gets data row, should return string - class name for the row,
+    # not required
+    rowCssClass: function(row) {return &#39;string&#39;;},
+
     # actions for the whole list, showed in the panel above the list
     listActions: { 
       new: {
@@ -356,6 +360,7 @@ designed to work with <a href="https://github.com/vasvitaly/angular-data-source"
 <li><em>listActions</em> - object describing list actions, e.g. &#39;new&#39;, &#39;go to other list&#39;, &#39;mark all&#39;.</li>
 <li><em>rowActions</em> - object, describing row actions, e.g. &#39;edit&#39;, &#39;remove&#39;, &#39;more info&#39;.</li>
 <li><em>modelName</em> - string with object name as it is in translation file. </li>
+<li><em>rowCssClass</em> - function, of data row, should return string - css class name will be set for row</li>
 <li><em>multiSelect</em> - object with multiselect feature options</li>
 <li><em>scope</em> - object, your controller scope, will be translated into $scope.upScope of directive.</li>
 </ul>

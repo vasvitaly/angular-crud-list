@@ -32,4 +32,4 @@ div ng-if="errors.length == 0"
             th ng-show="showActions" 
               | {{'actions' | i18n}}
         tbody
-          tr ng-repeat="row in dataSource.filteredRows()" ng-include="rowTpl(row)"
+          tr ng-repeat="row in dataSource.filteredRows()" ng-include="rowTpl(row)" ng-class="rowCssClass(row)"

@@ -17,6 +17,7 @@ var vvvCrudListController = function($scope) {
   
   $scope.listActionFormTpl = 'crud-list/list_action_form.html';
   $scope.showActions = {};
+  $scope.rowCssClass = $scope.options.rowCssClass || function(){return '';};
   $scope.columns = $scope.options.columns;
   $scope.modelName = $scope.options.modelName;
   $scope.rowStates = {};

@@ -101,6 +101,10 @@ angular.module('myApp').factory("Phone", ["$resource", function($resource) {
     
     # used to build right label translation path for i18n
     modelName: 'phone', 
+
+    # gets data row, should return string - class name for the row,
+    # not required
+    rowCssClass: function(row) {return 'string';},
     
     # actions for the whole list, showed in the panel above the list
     listActions: { 
@@ -193,6 +197,7 @@ vvv-pagination - for the pagination.
   * *listActions* - object describing list actions, e.g. 'new', 'go to other list', 'mark all'.
   * *rowActions* - object, describing row actions, e.g. 'edit', 'remove', 'more info'.
   * *modelName* - string with object name as it is in translation file. 
+  * *rowCssClass* - function, of data row, should return string - css class name will be set for row
   * *multiSelect* - object with multiselect feature options
   * *scope* - object, your controller scope, will be translated into $scope.upScope of directive.
 
@@ -205,6 +210,7 @@ vvv-pagination - for the pagination.
   * **width** - string or number, sets fixed width for the column using `width` property of the `th` tag 
   * **notSortable** - boolean or number (0|1), when true disables sorting feature on the column.
   * **templateUrl** - string, url of the custom template for the column cell. Could be used to show images or complex html code in the cell.
+
 
 
 ### listActions and rowActions hashes

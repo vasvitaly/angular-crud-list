@@ -1,7 +1,7 @@
 describe('vvvCrudListController', function(){
   'use strict';
   var sut, dataSource, listOptions, filteredRows,
-      scope, injector, newRow, directive, upScope;
+      scope, injector, newRow, directive, upScope, rowCssClass;
 
   beforeEach(module('vasvitaly.angular-crud-list'));
   
@@ -10,6 +10,7 @@ describe('vvvCrudListController', function(){
     directive = injector.get('vvvCrudListDirective')[0];
     scope = $rootScope;
     upScope = {parentKey: 'name'};
+    rowCssClass = function(row) {return row.state; };
     scope.options = {
       columns: [{fieldId: 'id'},{fieldId: 'name'}],
       modelName: 'phone',
@@ -36,6 +37,19 @@ describe('vvvCrudListController', function(){
   it('sets upScope from options.scope', function(){
     createSut();
     expect(scope.upScope).toEqual(upScope);
+  });
+
+  it('sets rowCssClass as default blank function when option empty', function(){
+    createSut();
+    expect(scope.rowCssClass).toEqual(jasmine.any(Function));
+    expect(scope.rowCssClass()).toEqual('');
+  });
+
+  it('sets rowCssClass from option', function(){
+    scope.options.rowCssClass = rowCssClass;
+    createSut();
+    expect(scope.rowCssClass).toEqual(rowCssClass);
+    expect(scope.rowCssClass({state: 'rejected'})).toEqual('rejected');
   });
 
   describe('checking columns', function(){
