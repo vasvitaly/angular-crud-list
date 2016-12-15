@@ -342,6 +342,7 @@ var vvvCrudListController = function($scope) {
   var onSuccessSave = function(row) {
     $scope.rowStates[$scope.rowId(row)] = null;
     if ($scope.row && $scope.row.id == row.id) {
+      $scope.rowStates[$scope.rowId({})] = null;
       $scope.row = null;
     }
   };

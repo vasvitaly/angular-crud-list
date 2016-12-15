@@ -455,10 +455,16 @@ describe('vvvCrudListController', function(){
           expect(scope.rowState(row)).toBe('');
         });
 
-        it('should nullify scope.row if exactly it was saved', function(){
+        it('should nullify scope.row if exactly new row was saved', function(){
           scope.row = row;
           callSaveRow();
           expect(scope.row).toEqual(null);
+        });
+
+        it('should nullify state for new row if exactly new row was saved', function(){
+          scope.row = row;
+          callSaveRow();
+          expect(scope.rowState(row)).toBe('');
         });
 
         it('should not nullify scope.row when not new row was saved', function(){
