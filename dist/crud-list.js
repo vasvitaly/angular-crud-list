@@ -199,15 +199,13 @@ var vvvCrudListController = function($scope) {
   };
 
   $scope.rowState = function(row){
-    if ($scope.rowStates[$scope.rowId(row)]) {
-      return $scope.rowStates[$scope.rowId(row)][0] || '';
-    }
-    return '';
+    return ($scope.rowStates[$scope.rowId(row)] || [''])[0];
   };
 
   $scope.rowAction = function(row){
-    if ($scope.rowStates[$scope.rowId(row)] && $scope.rowStates[$scope.rowId(row)][1]) {
-      return $scope.rowStates[$scope.rowId(row)][1];
+    var rowId = $scope.rowId(row);
+    if ($scope.rowStates[rowId] && $scope.rowStates[rowId][1]) {
+      return $scope.rowStates[rowId][1];
     }
     return {};
   };
@@ -687,7 +685,7 @@ angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($t
 
 
   $templateCache.put('crud-list/list_action_form.html',
-    "<h2 class=\"sub-header\">{{ rowAction().title | i18n }}</h2><div class=\"row\"><div class=\"col-md-12\" ng-include=\"rowAction().templateUrl\"></div></div>"
+    "<h2 class=\"sub-header\">{{ rowAction().title | i18n }}</h2><div class=\"row\"><div class=\"col-md-12\" ng-include=\"listActionTpl()\"></div></div>"
   );
 
 

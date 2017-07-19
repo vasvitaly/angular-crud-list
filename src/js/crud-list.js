@@ -199,15 +199,13 @@ var vvvCrudListController = function($scope) {
   };
 
   $scope.rowState = function(row){
-    if ($scope.rowStates[$scope.rowId(row)]) {
-      return $scope.rowStates[$scope.rowId(row)][0] || '';
-    }
-    return '';
+    return ($scope.rowStates[$scope.rowId(row)] || [''])[0];
   };
 
   $scope.rowAction = function(row){
-    if ($scope.rowStates[$scope.rowId(row)] && $scope.rowStates[$scope.rowId(row)][1]) {
-      return $scope.rowStates[$scope.rowId(row)][1];
+    var rowId = $scope.rowId(row);
+    if ($scope.rowStates[rowId] && $scope.rowStates[rowId][1]) {
+      return $scope.rowStates[rowId][1];
     }
     return {};
   };

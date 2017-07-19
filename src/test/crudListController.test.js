@@ -505,7 +505,7 @@ describe('vvvCrudListController', function(){
 
     it('should nullify state for saved row', function(){
       scope.remove(row);
-      expect(scope.rowStates[row.id]).toEqual(null);
+      expect(scope.rowStates[scope.rowId(row)]).toEqual(null);
     });
 
   });
@@ -764,8 +764,8 @@ describe('vvvCrudListController', function(){
         expect(scope.rowState({id: 'no_id'})).toEqual('');
       });
 
-      it('returns empty string when state is not array', function(){
-        scope.rowStates[1] = {};
+      it('returns empty string when state is null', function(){
+        scope.rowStates[1] = null;
         expect(scope.rowState({id: 1})).toEqual('');
       });
 

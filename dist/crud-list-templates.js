@@ -17,7 +17,7 @@ angular.module('vasvitaly.angular-crud-list').run(['$templateCache', function($t
 
 
   $templateCache.put('crud-list/list_action_form.html',
-    "<h2 class=\"sub-header\">{{ rowAction().title | i18n }}</h2><div class=\"row\"><div class=\"col-md-12\" ng-include=\"rowAction().templateUrl\"></div></div>"
+    "<h2 class=\"sub-header\">{{ rowAction().title | i18n }}</h2><div class=\"row\"><div class=\"col-md-12\" ng-include=\"listActionTpl()\"></div></div>"
   );
 
 
