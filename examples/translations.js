@@ -25,5 +25,6 @@ I18n.translations = {
       rows : 'Rows',
       'of-count' : ' of '
     }
+    loading: 'loading, please wait...'
   }
 };

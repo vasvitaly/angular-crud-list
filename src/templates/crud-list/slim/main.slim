@@ -31,5 +31,10 @@ div ng-if="errors.length == 0"
               span ng-bind="column.title | i18n : column.prefix"
             th ng-show="showActions" 
               | {{'actions' | i18n}}
-        tbody
+        tbody ng-if="!dataSource.inProgress"
           tr ng-repeat="row in dataSource.filteredRows()" ng-include="rowTpl(row)" ng-class="rowCssClass(row)"
+
+        tbody ng-if="dataSource.inProgress"
+          tr class="in-progress"
+            td colspan="{{columns.length+2}}"
+              | {{'loading' | i18n }}
