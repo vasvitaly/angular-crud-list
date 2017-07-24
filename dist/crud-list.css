@@ -19,3 +19,9 @@
   border-bottom-color: transparent;
   border-top-color: #000;
 }
+
+.in-progress {
+  text-align: center;
+  line-height: 10em;
+  height: 10em;
+}

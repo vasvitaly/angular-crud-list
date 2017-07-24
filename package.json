@@ -1,6 +1,6 @@
 {
   "name": "angular-crud-list",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Table based CRUD list angular directive",
   "main": ["dist/crud-list.min.js", "dist/crud-list.css"],
   "repository": {
