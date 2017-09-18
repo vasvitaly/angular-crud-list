@@ -6,7 +6,7 @@ td ng-repeat="column in columns" ng-include="cellTpl(column)"
 td.actions ng-if="showActions.rowActions"
   div.action-block ng-show="rowState(row) !== 'confirmation'"
     span ng-repeat="action in rowActions" 
-      a.btn ng-href="{{actionUrl(action, row)}}" target="_blank" ng-click="doAction($event, action, row)" ng-class="actionCssClass(action)" ng-show="actionShowed(action, row)" ng-disabled="actionDisabled(action, row)"
+      a.btn ng-href="{{actionUrl(action, row)}}" target="{{action.target}}" ng-click="doAction($event, action, row)" ng-class="actionCssClass(action)" ng-show="actionShowed(action, row)" ng-disabled="actionDisabled(action, row)"
         | {{ action.title | i18n }}
       | &nbsp;
     
