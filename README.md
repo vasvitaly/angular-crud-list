@@ -130,6 +130,8 @@ angular.module('myApp').factory("Phone", ["$resource", function($resource) {
         title: 'Detailed List',
         # action acting as a link
         url: '/phones', 
+        # to open in new window
+        target: '_blank',
         cssClass: 'btn-success',
         confirmation: {
           text: 'Do you really want a lot of data? It could be slooowly....',
@@ -243,6 +245,7 @@ Each key:value pair describes one action. Key is action name. Value is a action 
 * **title** - Action title, will be get from action name when not set.
 * **url** - Url template to make local or global link. Local link should start from `/`. 
   placeholders looks like :propertyName. :string will be treaten as placeholder only when row has appropriate property.  
+* **target** - Action's link target, not required
 * **templateUrl** - template url for inline actioning row. Good for inline edit form.
 * **action** - action function. When present will be called as action. Takes two args: row, scope. For list actions row is null. Scope is directive's scope. You can access your controller scope as usual $scope.
   Directive has predefined action 'remove'. 
