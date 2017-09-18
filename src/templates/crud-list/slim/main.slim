@@ -5,7 +5,7 @@ div ng-if="errors.length == 0"
   .row.list-actions-panel ng-show="doShowActionButtonsPanel()"
     div.list-actions ng-hide="listActionConfirmationInProgress()"
       span ng-repeat="action in listActions" 
-        a.btn ng-href="{{actionUrl(action)}}" target="_blank" ng-click="doAction($event, action, row)" ng-class="actionCssClass(action)" ng-show="actionShowed(action)" ng-disabled="actionDisabled(action)"
+        a.btn ng-href="{{actionUrl(action)}}" target="{{action.target}}" ng-click="doAction($event, action, row)" ng-class="actionCssClass(action)" ng-show="actionShowed(action)" ng-disabled="actionDisabled(action)"
           | {{ action.title | i18n }}
         | &nbsp;
     div.action-confirmation-block ng-show="listActionConfirmationInProgress()"
