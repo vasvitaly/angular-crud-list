@@ -1,6 +1,6 @@
 {
   "name": "angular-crud-list",
-  "version": "1.3.8",
+  "version": "1.3.9",
   "main": ["dist/crud-list.js", "dist/crud-list.css"],
   "authors": [
     "v5778844@gmail.com"
@@ -22,7 +22,7 @@
     "angular-mocks": "^1.5.8",
     "angular-route": "~1.5.8",
     "angular-resource": "^1.5.8",
-    "angular-data-source": "vasvitaly/angular-data-source#^0.2.4",
+    "angular-data-source": "vasvitaly/angular-data-source#^0.2.5",
     "bootstrap": "^3.3.7"
   }
 }
